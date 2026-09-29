@@ -1,6 +1,10 @@
-name: .NET Build
+name: Build and test
+
 on:
-  push:
+  pull_request:
+  workflow_dispatch:
+  workflow_call: {}
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
