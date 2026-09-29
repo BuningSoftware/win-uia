@@ -1,0 +1,4 @@
+<Project>
+  <!-- Examples are built and tested like the test projects: same settings, packages and shared test support. -->
+  <Import Project="$(MSBuildThisFileDirectory)..\tests\Directory.Build.props" />
+</Project>

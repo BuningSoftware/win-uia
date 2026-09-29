@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>NUnit integration for WinUia: the [UiTest] attribute that gives each UI test the desktop to itself.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The only WinUia module with a dependency: an NUnit attribute needs NUnit. Lowest supported version. -->
+    <PackageReference Include="NUnit" Version="4.3.2" />
+  </ItemGroup>
+
+</Project>

@@ -1,1 +1,19 @@
-<Solution />
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/WinUia.NUnit/WinUia.NUnit.csproj" />
+    <Project Path="src/WinUia/WinUia.csproj" />
+    <Project Path="src/WinUia.Core/WinUia.Core.csproj" />
+    <Project Path="src/WinUia.Input/WinUia.Input.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/WinUia.NUnit.UnitTests/WinUia.NUnit.UnitTests.csproj" />
+    <Project Path="tests/WinUia.Testing.Shared/WinUia.Testing.Shared.csproj" />
+    <Project Path="tests/WinUia.UnitTests/WinUia.UnitTests.csproj" />
+    <Project Path="tests/WinUia.Core.UnitTests/WinUia.Core.UnitTests.csproj" />
+    <Project Path="tests/WinUia.Input.UnitTests/WinUia.Input.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/examples/">
+    <Project Path="examples/WinUia.Winforms/WinUia.Winforms.csproj" />
+    <Project Path="examples/WinUia.Winforms.Tests/WinUia.Winforms.Tests.csproj" />
+  </Folder>
+</Solution>

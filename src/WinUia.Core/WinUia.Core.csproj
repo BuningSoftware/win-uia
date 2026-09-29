@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>A dependency-free .NET wrapper around the Windows UI Automation (UIA3) COM API.</Description>
+  </PropertyGroup>
+
+  <!-- WinUia (the entry module) uses Core through its public API only; do not add InternalsVisibleTo for it. -->
+  <ItemGroup>
+    <ProjectReference Include="..\WinUia.Input\WinUia.Input.csproj" />
+  </ItemGroup>
+
+</Project>

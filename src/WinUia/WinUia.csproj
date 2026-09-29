@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Automate Windows applications through UI Automation: launch, attach, find and interact.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WinUia.Core\WinUia.Core.csproj" />
+  </ItemGroup>
+
+</Project>

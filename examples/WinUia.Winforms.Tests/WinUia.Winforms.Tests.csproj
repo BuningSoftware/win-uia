@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Tests of the WinUia.Winforms fixture application, driven through WinUia. -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\WinUia\WinUia.csproj" />
+  </ItemGroup>
+
+</Project>

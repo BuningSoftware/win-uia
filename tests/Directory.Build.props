@@ -1,0 +1,43 @@
+<Project>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsUnitTestProject Condition="$(MSBuildProjectName.EndsWith('.UnitTests')) Or $(MSBuildProjectName.EndsWith('.Tests'))">true</IsUnitTestProject>
+  </PropertyGroup>
+
+  <!-- Settings shared by every test project (*.UnitTests and *.Tests). -->
+  <PropertyGroup Condition="'$(IsUnitTestProject)' == 'true'">
+    <IsTestProject>true</IsTestProject>
+    <RootNamespace>$(MSBuildProjectName)</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(IsUnitTestProject)' == 'true'">
+    <PackageReference Include="GitHubActionsTestLogger" Version="3.0.5" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
+    <PackageReference Include="NUnit" Version="4.6.1" />
+    <PackageReference Include="NUnit3TestAdapter" Version="6.3.0" />
+    <PackageReference Include="NUnit.Analyzers" Version="4.15.0" PrivateAssets="all" />
+
+    <Using Include="NUnit.Framework" />
+
+    <!-- Fixture app location. -->
+    <ProjectReference Include="$(MSBuildThisFileDirectory)WinUia.Testing.Shared\WinUia.Testing.Shared.csproj" />
+    <!-- Eventually(...) for asynchronous UI state, callable without a class prefix. -->
+    <Using Include="WinUia.Testing.Shared.UiAssertions" Static="true" />
+
+    <!-- [UiTest]: gives each UI test the desktop to itself, the way a WinUia package user would. -->
+    <ProjectReference Include="$(MSBuildThisFileDirectory)..\src\WinUia.NUnit\WinUia.NUnit.csproj" />
+    <Using Include="WinUia.NUnit" />
+
+    <!--
+      UI Automation must run on MTA threads; state it explicitly for every test assembly.
+      NUnit runs tests sequentially unless [Parallelizable] is used, which UI tests (one desktop, one input
+      queue) must not be.
+    -->
+    <AssemblyAttribute Include="NUnit.Framework.ApartmentAttribute">
+      <_Parameter1>System.Threading.ApartmentState.MTA</_Parameter1>
+      <_Parameter1_IsLiteral>true</_Parameter1_IsLiteral>
+    </AssemblyAttribute>
+  </ItemGroup>
+</Project>

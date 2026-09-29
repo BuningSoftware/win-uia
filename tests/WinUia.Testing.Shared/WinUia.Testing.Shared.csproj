@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Test support shared by every test project: the fixture app location and the Eventually assertion. -->
+
+  <ItemGroup>
+    <!-- Same version as the test projects (tests/Directory.Build.props). -->
+    <PackageReference Include="NUnit" Version="4.6.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Built alongside the tests and launched by the UI tests; not referenced as an assembly. -->
+    <ProjectReference Include="..\..\examples\WinUia.Winforms\WinUia.Winforms.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>TestAppPath</_Parameter1>
+      <_Parameter2>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\examples\WinUia.Winforms\bin\$(Configuration)\$(TargetFramework)\WinUia.Winforms.exe'))</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+</Project>
