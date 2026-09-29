@@ -7,13 +7,13 @@
 [![GNU Affero General Public License v3.0 License][license-shield]][license-url]
 
 <div align="center">
-  <h3 align="center">project_title</h3>
+  <h3 align="center">WinUia</h3>
   <p align="center">
-    project_description
+    A .NET library for automating Windows applications through Microsoft UI Automation.
     <br />
-    <a href="https://github.com/github_user/repository_name/issues">Report Bug</a>
+    <a href="https://github.com/JelleBuning/win-uia/issues">Report Bug</a>
     ·
-    <a href="https://github.com/github_user/repository_name/issues">Request Feature</a>
+    <a href="https://github.com/JelleBuning/win-uia/issues">Request Feature</a>
   </p>
 </div>
 
@@ -43,11 +43,7 @@
 
 ## About The Project
 
-This is a generic template for your next project. To get started, simply perform a **Search and Replace** in your editor for the following variables:
-* `github_user`
-* `repo_name`
-* `project_title`
-* `project_description`
+WinUia is a .NET library for inspecting and automating Windows applications through the Microsoft UI Automation framework.
 
 ### Features
 
@@ -61,35 +57,28 @@ This is a generic template for your next project. To get started, simply perform
 * [Library Name](https://example.com)
 
 ## Getting Started
-Setting up this solution on your local machine is straightforward and will enable you to fully utilize its capabilities. This guide will walk you through the necessary steps to get everything running smoothly.
-
-Before beginning, ensure that your development environment is properly configured. Having the required software and dependencies installed will prevent common issues and streamline the process.
+Setting up WinUia on your local machine is straightforward. Make sure the [.NET 10 SDK](https://dotnet.microsoft.com/download) is installed.
 
 ### Installation
-This installation method utilizes Docker Compose for a streamlined setup. Ensure you have Docker and Docker Compose installed on your system.
 
-1.  **Create a `docker-compose.yml` file:**
-
-    Create a new file named `docker-compose.yml` in a directory of your choice. Copy and paste the following content into it:
-
-    ```yaml
-    version: '3.4'
-    name: repository_name
-    services:
-      repository_name:
-        container_name: "repository_name"
-        image: ghcr.io/github_user/repository_name
-    ```
-
-2.  **Run Docker Compose:**
-
-    In the same directory as your `docker-compose.yml` file, execute the following command:
+1.  **Clone the repository:**
 
     ```bash
-    docker-compose up -d
+    git clone https://github.com/JelleBuning/win-uia.git
+    cd win-uia
     ```
 
-    This command will download the necessary images, create the containers, and start them in detached mode.
+2.  **Build the solution:**
+
+    ```bash
+    dotnet build WinUia.slnx
+    ```
+
+3.  **Run the tests:**
+
+    ```bash
+    dotnet test WinUia.slnx
+    ```
 
 <!-- CONTRIBUTING -->
 ## Contributing
@@ -117,13 +106,13 @@ Distributed under the GNU Affero General Public License v3.0 License. See `LICEN
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/github_user/repository_name.svg?style=for-the-badge
-[contributors-url]: https://github.com/github_user/repository_name/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/github_user/repository_name.svg?style=for-the-badge
-[forks-url]: https://github.com/github_user/repository_name/network/members
-[stars-shield]: https://img.shields.io/github/stars/github_user/repository_name.svg?style=for-the-badge
-[stars-url]: https://github.com/github_user/repository_name/stargazers
-[issues-shield]: https://img.shields.io/github/issues/github_user/repository_name.svg?style=for-the-badge
-[issues-url]: https://github.com/github_user/repository_name/issues
-[license-shield]: https://img.shields.io/github/license/github_user/repository_name.svg?style=for-the-badge
-[license-url]: https://github.com/github_user/repository_name/blob/master/LICENSE
+[contributors-shield]: https://img.shields.io/github/contributors/JelleBuning/win-uia.svg?style=for-the-badge
+[contributors-url]: https://github.com/JelleBuning/win-uia/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/JelleBuning/win-uia.svg?style=for-the-badge
+[forks-url]: https://github.com/JelleBuning/win-uia/network/members
+[stars-shield]: https://img.shields.io/github/stars/JelleBuning/win-uia.svg?style=for-the-badge
+[stars-url]: https://github.com/JelleBuning/win-uia/stargazers
+[issues-shield]: https://img.shields.io/github/issues/JelleBuning/win-uia.svg?style=for-the-badge
+[issues-url]: https://github.com/JelleBuning/win-uia/issues
+[license-shield]: https://img.shields.io/github/license/JelleBuning/win-uia.svg?style=for-the-badge
+[license-url]: https://github.com/JelleBuning/win-uia/blob/main/LICENSE
