@@ -1,5 +1,4 @@
 using System.Runtime.InteropServices;
-using WinUia.Core.Exceptions;
 using WinUia.Interop;
 
 namespace WinUia.Launchers;
@@ -20,7 +19,7 @@ internal static class PackagedAppActivator
         }
         catch (COMException ex)
         {
-            throw new UiaException($"Could not activate packaged app '{appUserModelId}' (0x{ex.HResult:X8}): {ex.Message}", ex.HResult, ex);
+            throw new AppProcessException($"Could not activate packaged app '{appUserModelId}' (0x{ex.HResult:X8}): {ex.Message}", ex);
         }
         finally
         {

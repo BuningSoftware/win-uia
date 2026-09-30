@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Runtime.InteropServices;
+using WinUia.Input.Interop;
 using static WinUia.Input.Interop.NativeMethods;
 
 namespace WinUia.Input;

@@ -7,6 +7,7 @@ on:
 
 jobs:
   build:
+    # Every OS builds (EnableWindowsTargeting); only Windows can run UI Automation, so only Windows tests.
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -15,20 +16,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - run: echo ${{matrix.os}}
-
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v6
         with:
-         dotnet-version: '10.0.x'
+          dotnet-version: '10.0.x'
 
       - name: Load nuget cache
         uses: actions/cache@v6
         with:
-          path: |
-            ~/.nuget/packages
-            !~/.nuget/packages/unwanted
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Packages.props', '**/*.csproj', '**/Directory.Build.props') }}
           restore-keys: |
             ${{ runner.os }}-nuget-
 
@@ -39,4 +36,10 @@ jobs:
         run: dotnet build --no-restore --configuration Release
 
       - name: Test
-        run: dotnet test --no-build --configuration Release --logger GitHubActions
+        if: runner.os == 'Windows'
+        run: dotnet test --no-build --configuration Release --filter "Category!=UI" --logger GitHubActions
+
+      # UI tests launch the fixture app and drive it with SendInput; they need the runner's interactive desktop.
+      - name: UI test
+        if: runner.os == 'Windows'
+        run: dotnet test --no-build --configuration Release --filter "Category=UI" --logger GitHubActions

@@ -1,12 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>NUnit integration for WinUia: the [UiTest] attribute that gives each UI test the desktop to itself.</Description>
+    <Description>NUnit integration for WinUia: [UiTest], which gives each UI test the desktop to itself, and Eventually for asynchronous UI state.</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- The only WinUia module with a dependency: an NUnit attribute needs NUnit. Lowest supported version. -->
-    <PackageReference Include="NUnit" Version="4.3.2" />
+    <!--
+      The only WinUia module with a dependency: NUnit integration needs NUnit. The package asks for the lowest
+      supported version, so it overrides the central (test) version.
+    -->
+    <PackageReference Include="NUnit" VersionOverride="4.3.2" />
+    <!-- Eventually waits the way WinUia waits (Poll). -->
+    <ProjectReference Include="..\WinUia.Core\WinUia.Core.csproj" />
   </ItemGroup>
 
 </Project>

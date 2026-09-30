@@ -1,7 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\WinUia.NUnit\WinUia.NUnit.csproj" />
-  </ItemGroup>
+  <!-- WinUia.NUnit, the module under test, is referenced by every test project (tests/Directory.Build.props). -->
 
 </Project>

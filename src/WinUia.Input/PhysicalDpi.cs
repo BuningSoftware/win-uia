@@ -6,7 +6,7 @@ namespace WinUia.Input;
 /// The physical-pixel coordinate space shared by UIA reads and <c>SendInput</c>. Code that reads screen coordinates
 /// from UIA runs inside <see cref="Run{T}"/>, the same scope <see cref="Win32InputSimulator"/> sends input in.
 /// </summary>
-internal static class PhysicalDpi
+public static class PhysicalDpi
 {
     /// <summary>
     /// Makes the process per-monitor-v2 DPI aware, for UIA builds that only honour process awareness. Fails

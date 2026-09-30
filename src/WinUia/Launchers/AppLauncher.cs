@@ -1,13 +1,12 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using WinUia.Core;
-using WinUia.Core.Elements;
 using WinUia.Core.Exceptions;
 
 namespace WinUia.Launchers;
 
-/// <summary>Starts, attaches to and closes applications, and finds their main window.</summary>
-public static class AppLauncher
+/// <summary>Starts, attaches to and closes applications, and finds their main window. <see cref="App"/> is the public API over it.</summary>
+internal static class AppLauncher
 {
     /// <summary>Starts a classic executable (WinForms, WPF, unpackaged WinUI 3, Win32; x86 or x64).</summary>
     public static Process LaunchExe(string path, string? arguments = null)
@@ -15,11 +14,11 @@ public static class AppLauncher
         try
         {
             return Process.Start(new ProcessStartInfo(path, arguments ?? "") { UseShellExecute = false })
-                ?? throw new UiaException($"Could not start '{path}'.");
+                ?? throw new AppProcessException($"Could not start '{path}'.");
         }
         catch (Win32Exception ex)
         {
-            throw new UiaException($"Could not start '{path}': {ex.Message}", ex.HResult, ex);
+            throw new AppProcessException($"Could not start '{path}': {ex.Message}", ex);
         }
     }
 
@@ -36,7 +35,7 @@ public static class AppLauncher
         }
         catch (ArgumentException ex)
         {
-            throw new UiaException($"No process with id {processId} is running.", ex.HResult, ex);
+            throw new AppProcessException($"No process with id {processId} is running.", ex);
         }
     }
 
@@ -45,7 +44,7 @@ public static class AppLauncher
     {
         var processes = Process.GetProcessesByName(processName);
         if (processes.Length == 0)
-            throw new UiaException($"No process named '{processName}' is running.");
+            throw new AppProcessException($"No process named '{processName}' is running.");
 
         foreach (var other in processes.Skip(1))
             other.Dispose();
@@ -55,7 +54,8 @@ public static class AppLauncher
     /// <summary>
     /// Waits for the process's top-level window. Looks for a desktop child owned by the process, then for a
     /// window hosting it (<c>ApplicationFrameHost</c> for UWP apps), then for <see cref="Process.MainWindowHandle"/>.
-    /// Throws when the process exits first or the timeout (<see cref="AutomationContext.DefaultTimeout"/>) elapses.
+    /// Throws <see cref="AppProcessException"/> when the process exits first, and <see cref="UiaElementNotFoundException"/>
+    /// when the timeout (<see cref="AutomationContext.DefaultTimeout"/> unless given) elapses.
     /// </summary>
     public static Element GetMainWindow(AutomationContext context, Process process, TimeSpan? timeout = null)
     {
@@ -66,7 +66,7 @@ public static class AppLauncher
         var window = context.WaitFor(() =>
         {
             if (process.HasExited)
-                throw new UiaException($"Process {processId} exited with code {process.ExitCode} before its main window appeared.");
+                throw new AppProcessException($"Process {processId} exited with code {process.ExitCode} before its main window appeared.");
 
             var own = root.TryFind(e => e.ProcessId == processId && e.ControlType == ControlType.Window, TreeScope.Children, TimeSpan.Zero);
             if (own is not null)
@@ -82,7 +82,7 @@ public static class AppLauncher
             return process.MainWindowHandle != 0 ? context.FromHandle(process.MainWindowHandle) : null;
         }, effectiveTimeout);
 
-        return window ?? throw new UiaTimeoutException(
+        return window ?? throw new UiaElementNotFoundException(
             $"The main window of process {process.Id} did not appear within {effectiveTimeout.TotalMilliseconds:0} ms.");
     }
 
@@ -100,9 +100,9 @@ public static class AppLauncher
         {
             GetMainWindow(context, process, TimeSpan.Zero).WindowPattern.Close();
         }
-        catch (UiaException)
+        catch (Exception ex) when (ex is UiaException or AppProcessException)
         {
-            // No window or no Window pattern: fall through to waiting and killing.
+            // No window, no Window pattern, or the process just exited: fall through to waiting and killing.
         }
 
         if (process.WaitForExit(effectiveTimeout))

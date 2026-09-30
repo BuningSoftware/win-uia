@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using WinUia.Core.Exceptions;
+using static WinUia.Core.Exceptions.HResults;
 
 namespace WinUia.Core;
 
@@ -9,16 +10,6 @@ namespace WinUia.Core;
 /// </summary>
 internal static class ComExceptionMapper
 {
-    private const int UIA_E_ELEMENTNOTENABLED = unchecked((int)0x80040200);
-    private const int UIA_E_ELEMENTNOTAVAILABLE = unchecked((int)0x80040201);
-    private const int UIA_E_NOCLICKABLEPOINT = unchecked((int)0x80040202);
-    private const int UIA_E_NOTSUPPORTED = unchecked((int)0x80040204);
-    private const int UIA_E_TIMEOUT = unchecked((int)0x80131505);
-    private const int E_NOTIMPL = unchecked((int)0x80004001);
-    private const int RPC_E_DISCONNECTED = unchecked((int)0x80010108);
-    private const int RPC_S_SERVER_UNAVAILABLE = unchecked((int)0x800706BA);
-    private const int RPC_S_CALL_FAILED = unchecked((int)0x800706BE);
-
     /// <summary>
     /// Runs <paramref name="call"/>, translating its failures through <see cref="Map"/>. The runtime turns some
     /// HRESULTs into other exception types (UIA_E_TIMEOUT, E_NOTIMPL), so those are translated as well.

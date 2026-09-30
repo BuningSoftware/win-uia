@@ -1,21 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- Test support shared by every test project: the fixture app location and the Eventually assertion. -->
+  <!-- Test support for the test projects that launch an app under tests/: where its executable is. -->
 
+  <!--
+    The apps the library tests launch. Each one is built alongside the tests (not referenced as an assembly) and
+    its exe path is stamped in as AppPath.<Name>, read by the matching property in AppPaths.cs.
+    Adding an app: copy this block and add the property.
+  -->
   <ItemGroup>
-    <!-- Same version as the test projects (tests/Directory.Build.props). -->
-    <PackageReference Include="NUnit" Version="4.6.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <!-- Built alongside the tests and launched by the UI tests; not referenced as an assembly. -->
-    <ProjectReference Include="..\..\examples\WinUia.Winforms\WinUia.Winforms.csproj" ReferenceOutputAssembly="false" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\WinUia.TestApp\WinUia.TestApp.csproj" ReferenceOutputAssembly="false" />
     <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
-      <_Parameter1>TestAppPath</_Parameter1>
-      <_Parameter2>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\examples\WinUia.Winforms\bin\$(Configuration)\$(TargetFramework)\WinUia.Winforms.exe'))</_Parameter2>
+      <_Parameter1>AppPath.TestApp</_Parameter1>
+      <_Parameter2>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\WinUia.TestApp\bin\$(Configuration)\$(TargetFramework)\WinUia.TestApp.exe'))</_Parameter2>
     </AssemblyAttribute>
   </ItemGroup>
 

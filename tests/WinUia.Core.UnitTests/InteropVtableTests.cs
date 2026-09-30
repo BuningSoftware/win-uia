@@ -1,4 +1,4 @@
-using WinUia.Core.Elements;
+using WinUia.Testing.Shared;
 
 namespace WinUia.Core.UnitTests;
 
@@ -55,6 +55,15 @@ public class InteropVtableTests
         using var context = new AutomationContext();
 
         AssertTypedGettersMatchPropertyValues(context.GetRootElement());
+    }
+
+    [Test]
+    [UiTest]
+    public void Test_app_window_typed_getters_match_property_values()
+    {
+        using var app = App.Launch(AppPaths.TestApp);
+
+        AssertTypedGettersMatchPropertyValues(app.MainWindow);
     }
 
     [Test]

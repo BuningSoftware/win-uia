@@ -1,6 +1,5 @@
 using System.Linq.Expressions;
 using System.Reflection;
-using WinUia.Core.Elements;
 using WinUia.Core.Interop;
 
 namespace WinUia.Core;

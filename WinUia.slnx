@@ -11,9 +11,10 @@
     <Project Path="tests/WinUia.UnitTests/WinUia.UnitTests.csproj" />
     <Project Path="tests/WinUia.Core.UnitTests/WinUia.Core.UnitTests.csproj" />
     <Project Path="tests/WinUia.Input.UnitTests/WinUia.Input.UnitTests.csproj" />
+    <Project Path="tests/WinUia.TestApp/WinUia.TestApp.csproj" />
   </Folder>
   <Folder Name="/examples/">
-    <Project Path="examples/WinUia.Winforms/WinUia.Winforms.csproj" />
-    <Project Path="examples/WinUia.Winforms.Tests/WinUia.Winforms.Tests.csproj" />
+    <Project Path="examples/WinUia.Examples.Winforms/WinUia.Examples.Winforms.csproj" />
+    <Project Path="examples/WinUia.Examples.Winforms.Tests/WinUia.Examples.Winforms.Tests.csproj" />
   </Folder>
 </Solution>

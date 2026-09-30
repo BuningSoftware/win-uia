@@ -88,21 +88,43 @@ Setting up WinUia on your local machine is straightforward. Make sure the [.NET 
     dotnet test WinUia.slnx
     ```
 
-    The UI tests (`Category=UI`) launch the bundled `WinUia.Winforms` and need an interactive desktop. Run only the others with `dotnet test WinUia.slnx --filter "Category!=UI"`.
+    The UI tests (`Category=UI`) launch an app (the empty `tests/WinUia.TestApp`, or `examples/WinUia.Examples.Winforms` for the examples) and need an interactive desktop. Run only the others with `dotnet test WinUia.slnx --filter "Category!=UI"`.
 
 ## Usage
 
 ```csharp
 using WinUia;
+using WinUia.Core;
 
-using var app = Automation.Launch(@"C:\path\to\MyApp.exe");   // or Automation.LaunchPackaged("Publisher.App_hash!App"), Automation.Attach(pid)
+using var app = App.Launch(@"C:\path\to\MyApp.exe");   // or App.LaunchPackaged("Publisher.App_hash!App"), App.Attach(pid)
 
-app.Find("txtName").SetValue("Ada");                     // by AutomationId, then by Name
+app.Find("txtName").SetValue("Ada");                 // by AutomationId, then by Name
 app.Find("btnSave").Click();
 
 var status = app.MainWindow.FindByAutomationId("lblStatus", TimeSpan.FromSeconds(10));
 Console.WriteLine(status.Name);
+
+var dialog = app.FindWindow("Save changes?");        // a dialog or other window of the app
+dialog.Find(e => e.ControlType == ControlType.Button && e.Name == "Yes").Click();
 // Disposing a launched app closes it (Window pattern first, then kill).
+```
+
+`Element`'s own methods (`Click`, `SetValue`, `GetText`, `Toggle`, `Select`, `Expand`, `Collapse`) are the everyday API:
+they check the element is enabled and pick the right pattern. The pattern wrappers (`element.TogglePattern.State`,
+`element.WindowPattern.Close()`, ...) are for reading pattern state and for the members those methods do not cover.
+
+A page object for the whole application derives from `App` and lists its controls; `As<T>()` turns a launched or
+attached app into it, FlaUI-style. Page objects for part of the UI are plain classes built on an `Element`
+(see `examples/WinUia.Examples.Winforms.Tests`):
+
+```csharp
+public sealed class MainPage : App
+{
+    public Element SaveButton => MainWindow.FindByAutomationId("btnSave");
+    public SaveDialog Save() { SaveButton.Click(); return new SaveDialog(FindWindow("Save changes?")); }
+}
+
+using var page = App.Launch(@"C:\path\to\MyApp.exe").As<MainPage>();   // disposing the page closes the app
 ```
 
 ### Project structure
@@ -111,19 +133,28 @@ WinUia is a modular monolith: one solution, one project per module, and one test
 
 | Module | Layer | Contents | Depends on |
 |---|---|---|---|
-| `WinUia` | Application | `Automation` (page objects over a running app), `WinUia.Launchers` (`AppLauncher`, packaged-app activation) | `WinUia.Core` (public API only) |
-| `WinUia.Core` | Domain | `AutomationContext`, `WinUia.Core.Elements` (`Element`, lambda searches such as `Find(e => e.Name == "OK")`), `WinUia.Core.Patterns`, `WinUia.Core.Exceptions`, the UIA COM interop | `WinUia.Input` |
-| `WinUia.Input` | Platform | `Win32InputSimulator` (`SendInput`), DPI scope, native button clicks | — |
-| `WinUia.NUnit` | Test integration | `[UiTest]`: one desktop per test, across test processes | NUnit |
+| `WinUia` | Application | `App` (launch, attach, find, close), `AppProcessException`; internal launchers (`WinUia.Launchers`) | `WinUia.Core` (public API only) |
+| `WinUia.Core` | Automation | `AutomationContext`, `Element` (lambda searches such as `Find(e => e.Name == "OK")`, self-healing locators), `Poll`, `WinUia.Core.Patterns`, `WinUia.Core.Exceptions`, the UIA COM interop | `WinUia.Input` (public API only) |
+| `WinUia.Input` | Platform | `Win32InputSimulator` (`SendInput`), `PhysicalDpi`, `NativeButton` | — |
+| `WinUia.NUnit` | Test integration | `[UiTest]`: one desktop per test, across test processes; `Eventually(...)` for asynchronous UI state | NUnit, `WinUia.Core` |
 
 Module rules:
 
 * Each module's `Interop/` folder is private to that module. Other modules use what it offers (`PhysicalDpi`, `NativeButton`), never its P/Invoke or COM declarations.
-* `WinUia` uses Core's public API only, the same API an application built on WinUia gets.
-* Internals are shared only through `InternalsVisibleTo`, and only with the module's own `<Module>.UnitTests` project, plus `WinUia.Input` with `WinUia.Core`.
-* One type per file.
+* Modules use each other's public API only, the same API an application built on WinUia gets.
+* Internals are shared only through `InternalsVisibleTo`, and only with the module's own `<Module>.UnitTests` project.
+* Namespaces follow project and folder. One type per file.
+* Package versions are set once, in `Directory.Packages.props`.
 
-Tests live next to their module as `tests/<Module>.UnitTests` and share `examples/WinUia.Winforms`, a WinForms fixture app (tested itself by `examples/WinUia.Winforms.Tests`), located through `tests/WinUia.Testing.Shared`. Tests use NUnit.
+Tests live next to their module as `tests/<Module>.UnitTests`. The ones that drive a real application launch
+`tests/WinUia.TestApp`, an empty window, located through `tests/WinUia.Testing.Shared` (`AppPaths`). Tests of control
+behaviour (patterns, searches, self-healing elements, dialogs, input) run against the WinForms example instead, in
+`examples/WinUia.Examples.Winforms.Tests`. UI tests are marked `[UiTest]`
+(category `UI`). Tests use NUnit.
+
+`examples/` shows WinUia the way a user would use it: `WinUia.Examples.Winforms` is a WinForms app and
+`WinUia.Examples.Winforms.Tests` tests it with page objects, using only WinUia's public API and `WinUia.NUnit`, nothing
+from `tests/`. Examples and tests are independent: neither references the other.
 
 ### Limitations
 

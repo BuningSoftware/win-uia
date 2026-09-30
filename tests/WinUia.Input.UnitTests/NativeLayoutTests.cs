@@ -1,5 +1,5 @@
 using System.Runtime.InteropServices;
-using static WinUia.Input.Interop.NativeMethods;
+using WinUia.Input.Interop;
 
 namespace WinUia.Input.UnitTests;
 

@@ -7,28 +7,22 @@
   </PropertyGroup>
 
   <!-- Settings shared by every test project (*.UnitTests and *.Tests). -->
-  <PropertyGroup Condition="'$(IsUnitTestProject)' == 'true'">
-    <IsTestProject>true</IsTestProject>
-    <RootNamespace>$(MSBuildProjectName)</RootNamespace>
-  </PropertyGroup>
-
   <ItemGroup Condition="'$(IsUnitTestProject)' == 'true'">
-    <PackageReference Include="GitHubActionsTestLogger" Version="3.0.5" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
-    <PackageReference Include="NUnit" Version="4.6.1" />
-    <PackageReference Include="NUnit3TestAdapter" Version="6.3.0" />
-    <PackageReference Include="NUnit.Analyzers" Version="4.15.0" PrivateAssets="all" />
+    <PackageReference Include="GitHubActionsTestLogger" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="NUnit" />
+    <PackageReference Include="NUnit3TestAdapter" />
+    <PackageReference Include="NUnit.Analyzers" PrivateAssets="all" />
 
     <Using Include="NUnit.Framework" />
 
-    <!-- Fixture app location. -->
-    <ProjectReference Include="$(MSBuildThisFileDirectory)WinUia.Testing.Shared\WinUia.Testing.Shared.csproj" />
-    <!-- Eventually(...) for asynchronous UI state, callable without a class prefix. -->
-    <Using Include="WinUia.Testing.Shared.UiAssertions" Static="true" />
-
-    <!-- [UiTest]: gives each UI test the desktop to itself, the way a WinUia package user would. -->
+    <!--
+      [UiTest] gives each UI test the desktop to itself and Eventually(...) waits for asynchronous UI state, the way a
+      WinUia package user would.
+    -->
     <ProjectReference Include="$(MSBuildThisFileDirectory)..\src\WinUia.NUnit\WinUia.NUnit.csproj" />
     <Using Include="WinUia.NUnit" />
+    <Using Include="WinUia.NUnit.UiAssertions" Static="true" />
 
     <!--
       UI Automation must run on MTA threads; state it explicitly for every test assembly.
@@ -40,4 +34,9 @@
       <_Parameter1_IsLiteral>true</_Parameter1_IsLiteral>
     </AssemblyAttribute>
   </ItemGroup>
+
+  <!--
+    Test projects that launch the test app (tests/WinUia.TestApp, an empty window) reference WinUia.Testing.Shared themselves,
+    which locates it. Projects that do not need the app do not build it. Tests never use anything from examples/.
+  -->
 </Project>

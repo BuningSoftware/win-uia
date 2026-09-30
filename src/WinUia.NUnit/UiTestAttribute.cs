@@ -20,7 +20,7 @@ namespace WinUia.NUnit;
 /// {
 ///     private MainForm _mainForm = null!;
 ///
-///     [SetUp] public void SetUp() => _mainForm = Automation.Launch&lt;MainForm&gt;(path);
+///     [SetUp] public void SetUp() => _mainForm = App.Launch(path).As&lt;MainForm&gt;();
 ///     [TearDown] public void TearDown() => _mainForm.Dispose();
 /// }
 /// </code>

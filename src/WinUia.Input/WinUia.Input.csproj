@@ -4,12 +4,4 @@
     <Description>Physical mouse and keyboard input (SendInput) in physical pixels, for WinUia.</Description>
   </PropertyGroup>
 
-  <ItemGroup>
-    <!--
-      Core reads screen coordinates in the same DPI scope the input uses (PhysicalDpi) and posts native button
-      clicks (NativeButton). Core must not use anything under Interop/: that is this module's own P/Invoke layer.
-    -->
-    <InternalsVisibleTo Include="WinUia.Core" />
-  </ItemGroup>
-
 </Project>

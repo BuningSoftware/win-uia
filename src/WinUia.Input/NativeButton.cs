@@ -3,7 +3,7 @@ using WinUia.Input.Interop;
 namespace WinUia.Input;
 
 /// <summary>Clicks native Win32 push buttons ("BUTTON" window class) through their window's message queue.</summary>
-internal static class NativeButton
+public static class NativeButton
 {
     /// <summary>
     /// Posts <c>BM_CLICK</c> to the button, so the click runs from the application's own message loop rather

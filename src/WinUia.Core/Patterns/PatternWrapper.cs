@@ -1,4 +1,3 @@
-using WinUia.Core.Elements;
 using WinUia.Core.Exceptions;
 using WinUia.Core.Interop;
 

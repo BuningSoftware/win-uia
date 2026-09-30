@@ -3,9 +3,6 @@
 
   <!-- Settings shared by every WinUia module. -->
   <PropertyGroup>
-    <RootNamespace>$(MSBuildProjectName)</RootNamespace>
-    <IsPackable>true</IsPackable>
-    <PackageId>$(MSBuildProjectName)</PackageId>
     <PackageLicenseExpression>AGPL-3.0-only</PackageLicenseExpression>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>

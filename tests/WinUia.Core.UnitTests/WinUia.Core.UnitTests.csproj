@@ -1,7 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <!-- The module under test, referenced directly (its internals are visible to this project). -->
     <ProjectReference Include="..\..\src\WinUia.Core\WinUia.Core.csproj" />
+    <!-- Launches and closes the test app with App (test-only dependency; Core itself never references WinUia). -->
+    <ProjectReference Include="..\..\src\WinUia\WinUia.csproj" />
+    <!-- Drives the test app: its location. -->
+    <ProjectReference Include="..\WinUia.Testing.Shared\WinUia.Testing.Shared.csproj" />
   </ItemGroup>
 
 </Project>

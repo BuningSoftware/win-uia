@@ -1,4 +1,11 @@
 <Project>
-  <!-- Examples are built and tested like the test projects: same settings, packages and shared test support. -->
-  <Import Project="$(MSBuildThisFileDirectory)..\tests\Directory.Build.props" />
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <!--
+    Examples are written the way a WinUia user would write them: they use the WinUia modules' public API only. Nothing
+    under tests/ references them and they reference nothing under tests/.
+  -->
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
 </Project>

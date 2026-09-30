@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using WinUia.Core;
-using WinUia.Core.Exceptions;
 using WinUia.Launchers;
 using WinUia.Testing.Shared;
 
@@ -41,7 +40,7 @@ public sealed class AppLauncherTests
     [Test]
     public void LaunchExe_and_GetMainWindow_find_the_fixture_window()
     {
-        var process = Track(AppLauncher.LaunchExe(TestAppPath.Exe));
+        var process = Track(AppLauncher.LaunchExe(AppPaths.TestApp));
 
         var window = AppLauncher.GetMainWindow(_context, process, TimeSpan.FromSeconds(15));
 
@@ -58,14 +57,14 @@ public sealed class AppLauncherTests
     {
         var process = Track(AppLauncher.LaunchExe("cmd.exe", "/c exit 3"));
 
-        var ex = Assert.Throws<UiaException>(() => AppLauncher.GetMainWindow(_context, process, TimeSpan.FromSeconds(15)));
+        var ex = Assert.Throws<AppProcessException>(() => AppLauncher.GetMainWindow(_context, process, TimeSpan.FromSeconds(15)));
         Assert.That(ex.Message, Does.Contain("exited"));
     }
 
     [Test]
     public void Close_closes_the_window_gracefully()
     {
-        var process = Track(AppLauncher.LaunchExe(TestAppPath.Exe));
+        var process = Track(AppLauncher.LaunchExe(AppPaths.TestApp));
         AppLauncher.GetMainWindow(_context, process, TimeSpan.FromSeconds(15));
 
         AppLauncher.Close(_context, process, TimeSpan.FromSeconds(10));
@@ -80,7 +79,7 @@ public sealed class AppLauncherTests
     [Test]
     public void Close_kills_a_window_that_refuses_to_close()
     {
-        var process = Track(AppLauncher.LaunchExe(TestAppPath.Exe, "--ignore-close"));
+        var process = Track(AppLauncher.LaunchExe(AppPaths.TestApp, "--ignore-close"));
         AppLauncher.GetMainWindow(_context, process, TimeSpan.FromSeconds(15));
 
         AppLauncher.Close(_context, process, TimeSpan.FromSeconds(1));
@@ -95,29 +94,29 @@ public sealed class AppLauncherTests
     [Test]
     public void Attach_finds_a_running_process_by_id_and_name()
     {
-        var process = Track(AppLauncher.LaunchExe(TestAppPath.Exe));
+        var process = Track(AppLauncher.LaunchExe(AppPaths.TestApp));
         AppLauncher.GetMainWindow(_context, process, TimeSpan.FromSeconds(15));
 
         using var byId = AppLauncher.Attach(process.Id);
-        using var byName = AppLauncher.Attach("WinUia.Winforms");
+        using var byName = AppLauncher.Attach("WinUia.TestApp");
 
         using (Assert.EnterMultipleScope())
         {
             Assert.That(byId.Id, Is.EqualTo(process.Id));
-            Assert.That(byName.ProcessName, Is.EqualTo("WinUia.Winforms"));
+            Assert.That(byName.ProcessName, Is.EqualTo("WinUia.TestApp"));
         }
     }
 
     [Test]
     public void Attach_to_a_missing_process_name_throws()
     {
-        Assert.Throws<UiaException>(() => AppLauncher.Attach("WinUia.No.Such.Process"));
+        Assert.Throws<AppProcessException>(() => AppLauncher.Attach("WinUia.No.Such.Process"));
     }
 
     [Test]
-    public void LaunchPackaged_with_an_unknown_AUMID_throws_a_UiaException()
+    public void LaunchPackaged_with_an_unknown_AUMID_throws_an_AppProcessException()
     {
-        var ex = Assert.Throws<UiaException>(() => AppLauncher.LaunchPackaged("WinUia.NoSuchPackage_0000000000000!App"));
+        var ex = Assert.Throws<AppProcessException>(() => AppLauncher.LaunchPackaged("WinUia.NoSuchPackage_0000000000000!App"));
         Assert.That(ex.Message, Does.Contain("WinUia.NoSuchPackage"));
     }
 }

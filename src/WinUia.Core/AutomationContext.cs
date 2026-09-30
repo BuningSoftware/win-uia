@@ -1,7 +1,5 @@
-using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Runtime.InteropServices;
-using WinUia.Core.Elements;
 using WinUia.Core.Interop;
 using WinUia.Input;
 
@@ -30,10 +28,10 @@ public sealed class AutomationContext : IDisposable
     }
 
     /// <summary>How long <c>Find</c> methods wait for an element. Default 5 seconds.</summary>
-    public TimeSpan DefaultTimeout { get; set; } = TimeSpan.FromSeconds(5);
+    public TimeSpan DefaultTimeout { get; set; } = Poll.DefaultTimeout;
 
     /// <summary>How often waits poll. Default 100 ms.</summary>
-    public TimeSpan PollingInterval { get; set; } = TimeSpan.FromMilliseconds(100);
+    public TimeSpan PollingInterval { get; set; } = Poll.DefaultInterval;
 
     /// <summary>How many times a call on a stale element is retried after re-resolving it. Default 3.</summary>
     public int StaleRetryCount { get; set; } = 3;
@@ -64,22 +62,8 @@ public sealed class AutomationContext : IDisposable
     /// result; returns null when <paramref name="timeout"/> (<see cref="DefaultTimeout"/> unless given) elapses first.
     /// The probe runs at least once, so a zero timeout means "look now".
     /// </summary>
-    public T? WaitFor<T>(Func<T?> probe, TimeSpan? timeout = null) where T : class
-    {
-        var waited = Stopwatch.StartNew();
-        var limit = timeout ?? DefaultTimeout;
-        while (true)
-        {
-            if (probe() is { } result)
-                return result;
-
-            var remaining = limit - waited.Elapsed;
-            if (remaining <= TimeSpan.Zero)
-                return null;
-
-            Thread.Sleep(remaining < PollingInterval ? remaining : PollingInterval);
-        }
-    }
+    public T? WaitFor<T>(Func<T?> probe, TimeSpan? timeout = null) where T : class =>
+        Poll.Until(probe, timeout ?? DefaultTimeout, PollingInterval);
 
     /// <summary>Throws <see cref="InvalidOperationException"/> when called on an STA thread.</summary>
     internal static void EnsureMta()
