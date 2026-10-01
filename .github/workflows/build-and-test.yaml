@@ -14,6 +14,7 @@ concurrency:
 # build compiles once; unit-test and ui-test run in parallel on its output.
 jobs:
   build:
+    name: Build
     runs-on: windows-latest
     steps:
       - name: Checkout
@@ -50,6 +51,7 @@ jobs:
           retention-days: 1
 
   unit-test:
+    name: Run unit tests
     needs: build
     runs-on: windows-latest
     timeout-minutes: 15
@@ -83,6 +85,7 @@ jobs:
         run: dotnet test --no-build --configuration Release --filter "Category!=UI" --logger GitHubActions
 
   ui-test:
+    name: Run UI tests
     # UI tests ([UiTest], category UI) launch apps and drive them through UI Automation and SendInput, so they need an
     # interactive desktop session, which GitHub-hosted Windows runners have.
     needs: build
