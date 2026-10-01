@@ -10,9 +10,10 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+# WinUia is Windows-only (UI Automation COM, SendInput), so every job runs on Windows.
+# build compiles once; unit-test and ui-test run in parallel on its output.
 jobs:
   build:
-    # WinUia is Windows-only (UI Automation COM, SendInput), so it is built and tested on Windows only.
     runs-on: windows-latest
     steps:
       - name: Checkout
@@ -37,12 +38,53 @@ jobs:
       - name: Build
         run: dotnet build --no-restore --configuration Release
 
-      - name: Test
+      - name: Upload build output
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: |
+            src/*/bin/Release
+            tests/*/bin/Release
+            examples/*/bin/Release
+          if-no-files-found: error
+          retention-days: 1
+
+  unit-test:
+    needs: build
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Load nuget cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Packages.props', '**/*.csproj', '**/Directory.Build.props') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      # dotnet test needs the restored project assets to find the test projects; the binaries come from build.
+      - name: Install dependencies
+        run: dotnet restore
+
+      - name: Download build output
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+
+      - name: Unit test
         run: dotnet test --no-build --configuration Release --filter "Category!=UI" --logger GitHubActions
 
   ui-test:
     # UI tests ([UiTest], category UI) launch apps and drive them through UI Automation and SendInput, so they need an
-    # interactive desktop session, which GitHub-hosted Windows runners have. They only run once build and unit tests pass.
+    # interactive desktop session, which GitHub-hosted Windows runners have.
     needs: build
     runs-on: windows-latest
     timeout-minutes: 20
@@ -63,11 +105,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
 
+      # dotnet test needs the restored project assets to find the test projects; the binaries come from build.
       - name: Install dependencies
         run: dotnet restore
 
-      - name: Build
-        run: dotnet build --no-restore --configuration Release
+      - name: Download build output
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
 
       - name: UI test
         run: >-
