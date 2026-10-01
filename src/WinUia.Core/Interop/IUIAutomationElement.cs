@@ -8,7 +8,7 @@ internal interface IUIAutomationElement
 {
     void SetFocus();
     [return: MarshalAs(UnmanagedType.SafeArray, SafeArraySubType = VarEnum.VT_I4)]
-    int[] GetRuntimeId();
+    int[]? GetRuntimeId();
     IUIAutomationElement? FindFirst(TreeScope scope, IUIAutomationCondition condition);
     IUIAutomationElementArray FindAll(TreeScope scope, IUIAutomationCondition condition);
     void Reserved_FindFirstBuildCache();
@@ -28,27 +28,27 @@ internal interface IUIAutomationElement
     void Reserved_GetCachedChildren();
     int CurrentProcessId { get; }
     int CurrentControlType { get; }
-    string CurrentLocalizedControlType { [return: MarshalAs(UnmanagedType.BStr)] get; }
-    string CurrentName { [return: MarshalAs(UnmanagedType.BStr)] get; }
-    string CurrentAcceleratorKey { [return: MarshalAs(UnmanagedType.BStr)] get; }
-    string CurrentAccessKey { [return: MarshalAs(UnmanagedType.BStr)] get; }
+    string? CurrentLocalizedControlType { [return: MarshalAs(UnmanagedType.BStr)] get; }
+    string? CurrentName { [return: MarshalAs(UnmanagedType.BStr)] get; }
+    string? CurrentAcceleratorKey { [return: MarshalAs(UnmanagedType.BStr)] get; }
+    string? CurrentAccessKey { [return: MarshalAs(UnmanagedType.BStr)] get; }
     bool CurrentHasKeyboardFocus { [return: MarshalAs(UnmanagedType.Bool)] get; }
     bool CurrentIsKeyboardFocusable { [return: MarshalAs(UnmanagedType.Bool)] get; }
     bool CurrentIsEnabled { [return: MarshalAs(UnmanagedType.Bool)] get; }
-    string CurrentAutomationId { [return: MarshalAs(UnmanagedType.BStr)] get; }
-    string CurrentClassName { [return: MarshalAs(UnmanagedType.BStr)] get; }
-    string CurrentHelpText { [return: MarshalAs(UnmanagedType.BStr)] get; }
+    string? CurrentAutomationId { [return: MarshalAs(UnmanagedType.BStr)] get; }
+    string? CurrentClassName { [return: MarshalAs(UnmanagedType.BStr)] get; }
+    string? CurrentHelpText { [return: MarshalAs(UnmanagedType.BStr)] get; }
     int CurrentCulture { get; }
     bool CurrentIsControlElement { [return: MarshalAs(UnmanagedType.Bool)] get; }
     bool CurrentIsContentElement { [return: MarshalAs(UnmanagedType.Bool)] get; }
     bool CurrentIsPassword { [return: MarshalAs(UnmanagedType.Bool)] get; }
     nint CurrentNativeWindowHandle { get; }
-    string CurrentItemType { [return: MarshalAs(UnmanagedType.BStr)] get; }
+    string? CurrentItemType { [return: MarshalAs(UnmanagedType.BStr)] get; }
     bool CurrentIsOffscreen { [return: MarshalAs(UnmanagedType.Bool)] get; }
     int CurrentOrientation { get; }
-    string CurrentFrameworkId { [return: MarshalAs(UnmanagedType.BStr)] get; }
+    string? CurrentFrameworkId { [return: MarshalAs(UnmanagedType.BStr)] get; }
     bool CurrentIsRequiredForForm { [return: MarshalAs(UnmanagedType.Bool)] get; }
-    string CurrentItemStatus { [return: MarshalAs(UnmanagedType.BStr)] get; }
+    string? CurrentItemStatus { [return: MarshalAs(UnmanagedType.BStr)] get; }
     tagRECT CurrentBoundingRectangle { get; }
     void Reserved_get_CurrentLabeledBy();
     void Reserved_get_CurrentAriaRole();

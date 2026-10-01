@@ -3,10 +3,11 @@
 
   <PropertyGroup>
     <IsPackable>false</IsPackable>
-    <IsUnitTestProject Condition="$(MSBuildProjectName.EndsWith('.UnitTests')) Or $(MSBuildProjectName.EndsWith('.Tests'))">true</IsUnitTestProject>
+    <!-- <Module>.UnitTests, <Module>.IntegrationTests, <Module>.UiTests (and *.Tests). -->
+    <IsUnitTestProject Condition="$(MSBuildProjectName.EndsWith('Tests'))">true</IsUnitTestProject>
   </PropertyGroup>
 
-  <!-- Settings shared by every test project (*.UnitTests and *.Tests). -->
+  <!-- Settings shared by every test project. -->
   <ItemGroup Condition="'$(IsUnitTestProject)' == 'true'">
     <PackageReference Include="GitHubActionsTestLogger" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
@@ -33,6 +34,14 @@
       <_Parameter1>System.Threading.ApartmentState.MTA</_Parameter1>
       <_Parameter1_IsLiteral>true</_Parameter1_IsLiteral>
     </AssemblyAttribute>
+  </ItemGroup>
+
+  <!--
+    Every test in a .UiTests project needs the desktop: [UiTest] on the assembly gives each one the desktop to itself
+    and puts it in the UI category, so a test filter of Category!=UI runs the unit and integration tests only.
+  -->
+  <ItemGroup Condition="$(MSBuildProjectName.EndsWith('.UiTests'))">
+    <AssemblyAttribute Include="WinUia.NUnit.UiTestAttribute" />
   </ItemGroup>
 
   <!--

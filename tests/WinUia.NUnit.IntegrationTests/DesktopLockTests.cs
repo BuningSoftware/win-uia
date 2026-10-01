@@ -1,4 +1,4 @@
-namespace WinUia.NUnit.UnitTests;
+namespace WinUia.NUnit.IntegrationTests;
 
 public class DesktopLockTests
 {

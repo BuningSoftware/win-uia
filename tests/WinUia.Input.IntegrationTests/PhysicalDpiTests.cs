@@ -1,10 +1,10 @@
 using System.Runtime.InteropServices;
 
-namespace WinUia.Input.UnitTests;
+namespace WinUia.Input.IntegrationTests;
 
 public class PhysicalDpiTests
 {
-    private const int DPI_AWARENESS_PER_MONITOR_AWARE = 2;
+    private const int DpiAwarenessPerMonitorAware = 2;
 
     [DllImport("user32.dll")]
     private static extern nint GetThreadDpiAwarenessContext();
@@ -23,7 +23,7 @@ public class PhysicalDpiTests
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(inside, Is.EqualTo(DPI_AWARENESS_PER_MONITOR_AWARE));
+            Assert.That(inside, Is.EqualTo(DpiAwarenessPerMonitorAware));
             Assert.That(CurrentAwareness(), Is.EqualTo(before));
         }
     }

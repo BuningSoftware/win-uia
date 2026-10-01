@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace WinUia.Core.UnitTests;
+namespace WinUia.Core.IntegrationTests;
 
 public class AutomationContextTests
 {
@@ -61,7 +61,8 @@ public class AutomationContextTests
     [Test]
     public void WaitFor_returns_as_soon_as_the_probe_succeeds()
     {
-        using var context = new AutomationContext { PollingInterval = TimeSpan.FromMilliseconds(10) };
+        using var context = new AutomationContext();
+        context.PollingInterval = TimeSpan.FromMilliseconds(10);
         var calls = 0;
 
         var result = context.WaitFor(() => ++calls == 3 ? "found" : null, TimeSpan.FromSeconds(5));
@@ -76,7 +77,8 @@ public class AutomationContextTests
     [Test]
     public void WaitFor_returns_null_after_the_timeout()
     {
-        using var context = new AutomationContext { PollingInterval = TimeSpan.FromMilliseconds(20) };
+        using var context = new AutomationContext();
+        context.PollingInterval = TimeSpan.FromMilliseconds(20);
         var stopwatch = Stopwatch.StartNew();
 
         var result = context.WaitFor<string>(() => null, TimeSpan.FromMilliseconds(200));
@@ -96,6 +98,30 @@ public class AutomationContextTests
 
         Assert.That(context.WaitFor<string>(() => { calls++; return null; }, TimeSpan.Zero), Is.Null);
         Assert.That(calls, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void ShowPointer_is_off_by_default_and_on_when_WINUIA_SHOW_POINTER_is_set()
+    {
+        var original = Environment.GetEnvironmentVariable("WINUIA_SHOW_POINTER");
+        try
+        {
+            Environment.SetEnvironmentVariable("WINUIA_SHOW_POINTER", null);
+            using var off = new AutomationContext();
+            Environment.SetEnvironmentVariable("WINUIA_SHOW_POINTER", "true");
+            using var on = new AutomationContext();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(off.ShowPointer, Is.False);
+                Assert.That(on.ShowPointer, Is.True);
+                Assert.That(on.PointerMoveDuration, Is.EqualTo(TimeSpan.FromMilliseconds(300)));
+            }
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("WINUIA_SHOW_POINTER", original);
+        }
     }
 
     [Test]

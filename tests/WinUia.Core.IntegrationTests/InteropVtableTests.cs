@@ -1,6 +1,4 @@
-using WinUia.Testing.Shared;
-
-namespace WinUia.Core.UnitTests;
+namespace WinUia.Core.IntegrationTests;
 
 /// <summary>
 /// Guards the hand-written vtables: each typed getter must agree with the generic
@@ -8,16 +6,16 @@ namespace WinUia.Core.UnitTests;
 /// </summary>
 public class InteropVtableTests
 {
-    internal static void AssertTypedGettersMatchPropertyValues(Element element)
+    private static void AssertTypedGettersMatchPropertyValues(Element element)
     {
         var raw = element.Raw;
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(raw.CurrentName ?? "", Is.EqualTo(raw.GetCurrentPropertyValue(30005) ?? ""));                       // Name
-            Assert.That(raw.CurrentAutomationId ?? "", Is.EqualTo(raw.GetCurrentPropertyValue(30011) ?? ""));               // AutomationId
-            Assert.That(raw.CurrentClassName ?? "", Is.EqualTo(raw.GetCurrentPropertyValue(30012) ?? ""));                  // ClassName
-            Assert.That(raw.CurrentFrameworkId ?? "", Is.EqualTo(raw.GetCurrentPropertyValue(30024) ?? ""));                // FrameworkId
+            Assert.That(raw.CurrentName, Is.EqualTo(raw.GetCurrentPropertyValue(30005) ?? ""));                       // Name
+            Assert.That(raw.CurrentAutomationId, Is.EqualTo(raw.GetCurrentPropertyValue(30011) ?? ""));               // AutomationId
+            Assert.That(raw.CurrentClassName, Is.EqualTo(raw.GetCurrentPropertyValue(30012) ?? ""));                  // ClassName
+            Assert.That(raw.CurrentFrameworkId, Is.EqualTo(raw.GetCurrentPropertyValue(30024) ?? ""));                // FrameworkId
             Assert.That(raw.CurrentLocalizedControlType ?? "", Is.EqualTo(raw.GetCurrentPropertyValue(30004) ?? ""));       // LocalizedControlType
             Assert.That(raw.CurrentControlType, Is.EqualTo(raw.GetCurrentPropertyValue(30003)));                            // ControlType
             Assert.That(raw.CurrentProcessId, Is.EqualTo(raw.GetCurrentPropertyValue(30002)));                              // ProcessId
@@ -55,15 +53,6 @@ public class InteropVtableTests
         using var context = new AutomationContext();
 
         AssertTypedGettersMatchPropertyValues(context.GetRootElement());
-    }
-
-    [Test]
-    [UiTest]
-    public void Test_app_window_typed_getters_match_property_values()
-    {
-        using var app = App.Launch(AppPaths.TestApp);
-
-        AssertTypedGettersMatchPropertyValues(app.MainWindow);
     }
 
     [Test]

@@ -1,14 +1,23 @@
+using System.Reflection;
 using WinUia.Core;
 
 namespace WinUia.Examples.Winforms.Tests.Application;
 
 /// <summary>
-/// Page object for the example app: the <see cref="App"/> itself, with the controls of its main window. Get it with
-/// <c>App.LaunchApplication()</c> (<see cref="Extensions.AppExtensions"/>). The tab pages and the dialog are page objects
-/// of their own, built on the elements they cover.
+/// Page object for the example WinForms app: the <see cref="App"/> itself, with the controls of its main window.
+/// It knows its own executable and defaults, so tests launch it with <c>App.Launch&lt;WinFormsApp&gt;()</c>, or
+/// <c>App.Launch&lt;WinFormsApp&gt;(new AppLaunchOptions { ShowPointer = false })</c> where nobody watches.
+/// The tab pages and the dialog are page objects of their own, built on the elements they cover.
 /// </summary>
-public sealed class MainForm : App
+public sealed class WinFormsApp : App
 {
+    /// <inheritdoc />
+    protected override string ExecutablePath => typeof(WinFormsApp).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
+        .Single(a => a.Key == "ApplicationPath").Value!;
+
+    /// <summary>The cursor moves to every element a test interacts with, so you can follow a run.</summary>
+    protected override AppLaunchOptions DefaultOptions => new() { ShowPointer = true };
+
     public Element Window => MainWindow;
     public Element Button => Window.FindByAutomationId("btnClick");
     public Element ResultLabel => Window.FindByAutomationId("lblResult");

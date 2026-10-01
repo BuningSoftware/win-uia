@@ -22,6 +22,7 @@ public class ElementPredicateTests
         var name = "Tab 1";
         var processId = 42;
 
+        // ReSharper disable once AccessToModifiedClosure (the point of the test: the change after canonicalizing is not seen)
         var search = ElementPredicate.Canonicalize(e => name == e.Name && e.ProcessId == processId);
         name = "changed";
 
@@ -84,15 +85,5 @@ public class ElementPredicateTests
             Assert.Throws<NotSupportedException>(() => ElementPredicate.Canonicalize(e => e.Name == e.AutomationId));
             Assert.Throws<NotSupportedException>(() => ElementPredicate.Canonicalize(e => e.Name == null!));
         }
-    }
-
-    [Test]
-    public void Every_supported_form_becomes_a_UIA_condition()
-    {
-        using var context = new AutomationContext();
-        var search = ElementPredicate.Canonicalize(e =>
-            (e.AutomationId == "a" && e.ProcessId == 1) || e.ClassName != "c" || e.ControlType == ControlType.Pane || !(e.Name == "n"));
-
-        Assert.That(context.CreateCondition(search), Is.Not.Null);
     }
 }

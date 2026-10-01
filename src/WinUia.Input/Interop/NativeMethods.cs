@@ -22,6 +22,10 @@ internal static class NativeMethods
 
     [DllImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool GetCursorPos(out POINT lpPoint);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
     public static extern bool PostMessage(nint hWnd, uint msg, nint wParam, nint lParam);
 
     public const uint BM_CLICK = 0x00F5;

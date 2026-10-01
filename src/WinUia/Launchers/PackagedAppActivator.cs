@@ -11,6 +11,7 @@ internal static class PackagedAppActivator
 {
     public static int Activate(string appUserModelId, string? arguments)
     {
+        // ReSharper disable once SuspiciousTypeConversion.Global (a COM coclass: the object behind it implements the interface)
         var manager = (IApplicationActivationManager)new ApplicationActivationManager();
         try
         {

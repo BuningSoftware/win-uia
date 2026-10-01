@@ -7,6 +7,6 @@ namespace WinUia.Core.Interop;
 internal interface IUIAutomationValuePattern
 {
     void SetValue([MarshalAs(UnmanagedType.BStr)] string val);
-    string CurrentValue { [return: MarshalAs(UnmanagedType.BStr)] get; }
+    string? CurrentValue { [return: MarshalAs(UnmanagedType.BStr)] get; }
     bool CurrentIsReadOnly { [return: MarshalAs(UnmanagedType.Bool)] get; }
 }

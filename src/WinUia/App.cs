@@ -12,9 +12,9 @@ namespace WinUia;
 /// using var app = App.Launch(@"C:\path\to\MyApp.exe");
 /// app.Find("btnOk").Click();
 /// </code>
-/// A page object for the whole application derives from <see cref="App"/> and lists its controls; get one with
-/// <see cref="As{TApp}"/>, for example <c>App.Launch(path).As&lt;MainPage&gt;()</c>. Page objects for part of the UI
-/// are plain classes built on an <see cref="Element"/>, for example <c>new SettingsDialog(app.FindWindow("Settings"))</c>.
+/// A page object for the whole application derives from <see cref="App"/> and lists its controls; the generic factories
+/// create it already connected: <c>App.Launch&lt;MainPage&gt;(path, options)</c>. Page objects for part of the UI are
+/// plain classes built on an <see cref="Element"/>, for example <c>new SettingsDialog(app.FindWindow("Settings"))</c>.
 /// <para>
 /// Must be used from an MTA thread (see <see cref="AutomationContext"/>); creating it on an STA thread throws.
 /// Disposing an app that was launched closes it; disposing an attached app leaves it running.
@@ -25,30 +25,81 @@ public class App : IDisposable
     private Process? _process;
     private AutomationContext? _context;
     private bool _ownsProcess;
-    private bool _handedOver; // True once As<TApp> moved this app to another instance.
     private bool _disposed;
 
     /// <summary>
-    /// For derived types, which are not created directly but through <see cref="As{TApp}"/>; that connects the instance
-    /// to a running application.
+    /// For derived types (page objects), which are created by the generic factories such as
+    /// <see cref="Launch{TApp}(AppLaunchOptions?)"/>; those connect the instance to the application. The constructor
+    /// runs before the application starts, so it cannot use <see cref="MainWindow"/> or <see cref="Process"/>.
     /// </summary>
     protected App() { }
 
-    /// <summary>Starts a classic executable. Throws <see cref="AppProcessException"/> when it cannot be started.</summary>
-    public static App Launch(string path, string? arguments = null) =>
-        Open(() => AppLauncher.LaunchExe(path, arguments), ownsProcess: true);
+    /// <summary>
+    /// The executable a page object launches when <see cref="Launch{TApp}(AppLaunchOptions?)"/> is called without a
+    /// path. Null (the default) means the page object does not know its executable, so a path must be passed.
+    /// </summary>
+    protected virtual string? ExecutablePath => null;
 
-    /// <summary>Starts a packaged app by its AppUserModelID. Throws <see cref="AppProcessException"/> when it cannot be activated.</summary>
-    public static App LaunchPackaged(string appUserModelId, string? arguments = null) =>
-        Open(() => AppLauncher.LaunchPackaged(appUserModelId, arguments), ownsProcess: true);
+    /// <summary>
+    /// How a page object is launched or attached unless the caller says otherwise: the options passed to a factory
+    /// override these property by property, and an option left empty in both keeps WinUia's default. Attaching uses
+    /// only <see cref="AppLaunchOptions.ShowPointer"/> and <see cref="AppLaunchOptions.MainWindowTimeout"/>.
+    /// </summary>
+    protected virtual AppLaunchOptions DefaultOptions => new();
+
+    /// <summary>Starts a classic executable. Throws <see cref="AppProcessException"/> when it cannot be started.</summary>
+    public static App Launch(string path, AppLaunchOptions? options = null) =>
+        Start(new App(), effective => AppLauncher.LaunchExe(path, effective), options);
+
+    /// <summary>
+    /// Starts a classic executable as <typeparamref name="TApp"/>, a page object that derives from <see cref="App"/>:
+    /// <c>App.Launch&lt;MainPage&gt;(path)</c>. Throws <see cref="AppProcessException"/> when it cannot be started.
+    /// </summary>
+    public static TApp Launch<TApp>(string path, AppLaunchOptions? options = null) where TApp : App, new() =>
+        Start(new TApp(), effective => AppLauncher.LaunchExe(path, effective), options);
+
+    /// <summary>
+    /// Starts the executable <typeparamref name="TApp"/> declares (<see cref="ExecutablePath"/>) as that page object:
+    /// <c>App.Launch&lt;MainPage&gt;()</c>. Throws <see cref="InvalidOperationException"/>, before anything starts,
+    /// when <typeparamref name="TApp"/> does not declare one, and <see cref="AppProcessException"/> when it cannot be started.
+    /// </summary>
+    public static TApp Launch<TApp>(AppLaunchOptions? options = null) where TApp : App, new()
+    {
+        var app = new TApp();
+        App definition = app; // Protected members are reachable through the base type here.
+        var path = definition.ExecutablePath ?? throw new InvalidOperationException(
+            $"{typeof(TApp).Name} does not say which executable it launches. Override {nameof(ExecutablePath)} in " +
+            $"{typeof(TApp).Name}, or pass the path: App.Launch<{typeof(TApp).Name}>(path).");
+        return Start(app, effective => AppLauncher.LaunchExe(path, effective), options);
+    }
+
+    /// <summary>
+    /// Starts a packaged app by its AppUserModelID. Throws <see cref="AppProcessException"/> when it cannot be activated,
+    /// and <see cref="ArgumentException"/> for <see cref="AppLaunchOptions.WorkingDirectory"/> or
+    /// <see cref="AppLaunchOptions.Environment"/>, which Windows decides for packaged apps.
+    /// </summary>
+    public static App LaunchPackaged(string appUserModelId, AppLaunchOptions? options = null) =>
+        Start(new App(), effective => AppLauncher.LaunchPackaged(appUserModelId, effective), options, packaged: true);
+
+    /// <summary>Like <see cref="LaunchPackaged(string, AppLaunchOptions?)"/>, as <typeparamref name="TApp"/>.</summary>
+    public static TApp LaunchPackaged<TApp>(string appUserModelId, AppLaunchOptions? options = null) where TApp : App, new() =>
+        Start(new TApp(), effective => AppLauncher.LaunchPackaged(appUserModelId, effective), options, packaged: true);
 
     /// <summary>Attaches to a running process by id. Throws <see cref="AppProcessException"/> when it is not running.</summary>
     public static App Attach(int processId) =>
-        Open(() => AppLauncher.Attach(processId), ownsProcess: false);
+        Start(new App(), _ => AppLauncher.Attach(processId), options: null, ownsProcess: false);
+
+    /// <summary>Like <see cref="Attach(int)"/>, as <typeparamref name="TApp"/>.</summary>
+    public static TApp Attach<TApp>(int processId) where TApp : App, new() =>
+        Start(new TApp(), _ => AppLauncher.Attach(processId), options: null, ownsProcess: false);
 
     /// <summary>Attaches to a running process by name (without ".exe"). Throws <see cref="AppProcessException"/> when none is running.</summary>
     public static App Attach(string processName) =>
-        Open(() => AppLauncher.Attach(processName), ownsProcess: false);
+        Start(new App(), _ => AppLauncher.Attach(processName), options: null, ownsProcess: false);
+
+    /// <summary>Like <see cref="Attach(string)"/>, as <typeparamref name="TApp"/>.</summary>
+    public static TApp Attach<TApp>(string processName) where TApp : App, new() =>
+        Start(new TApp(), _ => AppLauncher.Attach(processName), options: null, ownsProcess: false);
 
     /// <summary>The automation context used for this app.</summary>
     public AutomationContext Context => _context ?? throw NotConnected();
@@ -61,27 +112,6 @@ public class App : IDisposable
 
     /// <summary>The application's main window, waited for on first use.</summary>
     public Element MainWindow => field ??= AppLauncher.GetMainWindow(Context, Process, MainWindowTimeout);
-
-    /// <summary>
-    /// This running application as <typeparamref name="TApp"/>, a page object that derives from <see cref="App"/>:
-    /// <c>App.Launch(path).As&lt;MainPage&gt;()</c>. The returned instance takes the application over: dispose that one.
-    /// Disposing this instance afterwards does nothing, so a launched application is closed exactly once.
-    /// </summary>
-    public TApp As<TApp>() where TApp : App, new()
-    {
-        ObjectDisposedException.ThrowIf(_disposed, this);
-        if (_handedOver)
-            throw new InvalidOperationException("This app was already handed over by As<TApp>(); use the instance it returned.");
-
-        var app = new TApp();
-        App connected = app; // Private members are reachable through the base type only.
-        connected._process = Process;
-        connected._context = Context;
-        connected._ownsProcess = _ownsProcess;
-        connected.MainWindowTimeout = MainWindowTimeout;
-        _handedOver = true;
-        return app;
-    }
 
     /// <summary>
     /// Waits for a descendant of the main window whose AutomationId, or failing that Name, equals
@@ -139,8 +169,8 @@ public class App : IDisposable
             return;
         _disposed = true;
 
-        // Not connected (created directly), or handed over to the instance As<TApp> returned: nothing to release here.
-        if (_handedOver || _process is null || _context is null)
+        // Created directly instead of through a factory: not connected, nothing to release.
+        if (_process is null || _context is null)
             return;
 
         try
@@ -156,15 +186,31 @@ public class App : IDisposable
     }
 
     /// <summary>
-    /// Creates the context, then starts or attaches to the process. The context comes first so that an STA thread
-    /// fails before anything is started that would have to be killed again.
+    /// Connects <paramref name="app"/>, already constructed, to the application <paramref name="connect"/> starts or
+    /// attaches to, with <paramref name="options"/> over the page object's <see cref="DefaultOptions"/>. The context is
+    /// created before the process, so that an STA thread or invalid options fail before anything is started that would
+    /// have to be killed again.
     /// </summary>
-    private static App Open(Func<Process> connect, bool ownsProcess)
+    private static TApp Start<TApp>(TApp app, Func<AppLaunchOptions, Process> connect, AppLaunchOptions? options,
+        bool ownsProcess = true, bool packaged = false) where TApp : App
     {
+        App connected = app; // Private and protected members are reachable through the base type only.
+        var effective = connected.DefaultOptions.OverriddenBy(options);
+        if (packaged)
+            AppLauncher.EnsurePackagedOptions(effective);
+
         var context = new AutomationContext();
         try
         {
-            return new App { _process = connect(), _context = context, _ownsProcess = ownsProcess };
+            if (effective.ShowPointer is { } showPointer)
+                context.ShowPointer = showPointer;
+            if (effective.MainWindowTimeout is { } mainWindowTimeout)
+                connected.MainWindowTimeout = mainWindowTimeout;
+
+            connected._process = connect(effective);
+            connected._context = context;
+            connected._ownsProcess = ownsProcess;
+            return app;
         }
         catch
         {
@@ -174,5 +220,5 @@ public class App : IDisposable
     }
 
     private static InvalidOperationException NotConnected() =>
-        new("This app is not connected to an application. Get it with App.Launch(...).As<TApp>() or App.Attach(...).As<TApp>().");
+        new("This app is not connected to an application. Create it with App.Launch<TApp>(...), App.LaunchPackaged<TApp>(...) or App.Attach<TApp>(...).");
 }

@@ -8,7 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Each module's own test project, e.g. WinUia.Core -> WinUia.Core.UnitTests. -->
+    <!-- Each module's own test projects, e.g. WinUia.Core -> WinUia.Core.UnitTests, .IntegrationTests and .UiTests. -->
     <InternalsVisibleTo Include="$(MSBuildProjectName).UnitTests" />
+    <InternalsVisibleTo Include="$(MSBuildProjectName).IntegrationTests" />
+    <InternalsVisibleTo Include="$(MSBuildProjectName).UiTests" />
   </ItemGroup>
 </Project>

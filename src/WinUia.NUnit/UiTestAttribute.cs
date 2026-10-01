@@ -16,12 +16,12 @@ namespace WinUia.NUnit;
 /// Put it on a test class, a test method or the assembly (<c>[assembly: UiTest]</c>).
 /// <code>
 /// [UiTest]
-/// public class MainFormTests
+/// public class MainPageTests
 /// {
-///     private MainForm _mainForm = null!;
+///     private MainPage _page = null!;
 ///
-///     [SetUp] public void SetUp() => _mainForm = App.Launch(path).As&lt;MainForm&gt;();
-///     [TearDown] public void TearDown() => _mainForm.Dispose();
+///     [SetUp] public void SetUp() => _page = App.Launch&lt;MainPage&gt;();
+///     [TearDown] public void TearDown() => _page.Dispose();
 /// }
 /// </code>
 /// </summary>

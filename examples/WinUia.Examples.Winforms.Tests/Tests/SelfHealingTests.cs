@@ -1,7 +1,6 @@
 using WinUia.Core.Exceptions;
 using WinUia.Core;
 using WinUia.Examples.Winforms.Tests.Application;
-using WinUia.Examples.Winforms.Tests.Extensions;
 
 namespace WinUia.Examples.Winforms.Tests.Tests;
 
@@ -13,28 +12,28 @@ namespace WinUia.Examples.Winforms.Tests.Tests;
 [UiTest]
 public sealed class SelfHealingTests
 {
-    private MainForm _mainForm = null!;
+    private WinFormsApp _app = null!;
 
     [SetUp]
-    public void SetUp() => _mainForm = App.LaunchApplication();
+    public void SetUp() => _app = App.Launch<WinFormsApp>();
 
     [TearDown]
-    public void TearDown() => _mainForm.Dispose();
+    public void TearDown() => _app.Dispose();
 
-    private IReadOnlyList<Element> Items() => _mainForm.ItemsPanel.FindAll(e => e.ControlType == ControlType.Button, TreeScope.Children);
+    private IReadOnlyList<Element> Items() => _app.ItemsPanel.FindAll(e => e.ControlType == ControlType.Button, TreeScope.Children);
 
     private IEnumerable<string> ItemNames() => Items().Select(i => i.Name);
 
     private void Recreate()
     {
-        _mainForm.RecreateButton.Click();
-        Eventually(() => _mainForm.VolatileButton.Name == "Volatile 2", "Recreate replaces the volatile button");
+        _app.RecreateButton.Click();
+        Eventually(() => _app.VolatileButton.Name == "Volatile 2", "Recreate replaces the volatile button");
     }
 
     [Test]
     public void A_found_element_re_resolves_after_its_control_is_recreated()
     {
-        var volatileButton = _mainForm.VolatileButton;
+        var volatileButton = _app.VolatileButton;
         Assert.That(volatileButton.Name, Is.EqualTo("Volatile 1"));
 
         Recreate();
@@ -49,7 +48,7 @@ public sealed class SelfHealingTests
         var namesBefore = items.Select(i => i.Name).ToArray();
         Assert.That(namesBefore, Is.EquivalentTo(["Item A", "Item B", "Item C"]));
 
-        _mainForm.ReverseButton.Click();
+        _app.ReverseButton.Click();
         Eventually(() => ItemNames().SequenceEqual(namesBefore.Reverse()));
 
         Assert.That(items.Select(i => i.Name), Is.EqualTo(namesBefore));
@@ -60,7 +59,7 @@ public sealed class SelfHealingTests
     {
         var items = Items();
 
-        _mainForm.ReverseButton.Click();
+        _app.ReverseButton.Click();
         Eventually(() => ItemNames().First() == "Item C");
 
         Assert.Throws<UiaStaleElementException>(() => _ = items[0].Name);
@@ -69,11 +68,11 @@ public sealed class SelfHealingTests
     [Test]
     public void Without_stale_retries_a_recreated_control_reports_stale()
     {
-        var volatileButton = _mainForm.VolatileButton;
+        var volatileButton = _app.VolatileButton;
         Assert.That(volatileButton.Name, Is.EqualTo("Volatile 1"));
         Recreate();
 
-        _mainForm.Context.StaleRetryCount = 0;
+        _app.Context.StaleRetryCount = 0;
 
         Assert.Throws<UiaStaleElementException>(() => _ = volatileButton.Name);
     }
@@ -81,7 +80,7 @@ public sealed class SelfHealingTests
     [Test]
     public void An_element_without_a_locator_reports_stale_after_its_control_is_recreated()
     {
-        var byHandle = _mainForm.Context.FromHandle(_mainForm.VolatileButton.NativeWindowHandle);
+        var byHandle = _app.Context.FromHandle(_app.VolatileButton.NativeWindowHandle);
         Assert.That(byHandle.Name, Is.EqualTo("Volatile 1"));
 
         Recreate();
@@ -92,11 +91,11 @@ public sealed class SelfHealingTests
     [Test]
     public void A_found_child_re_resolves_after_it_and_its_siblings_are_recreated()
     {
-        var panel = _mainForm.ItemsPanel;
+        var panel = _app.ItemsPanel;
         var itemA = panel.Find(e => e.Name == "Item A", TreeScope.Children);
         Assert.That(itemA.Name, Is.EqualTo("Item A"));
 
-        _mainForm.ReverseButton.Click();
+        _app.ReverseButton.Click();
         Eventually(() => ItemNames().First() == "Item C");
 
         Assert.That(itemA.Name, Is.EqualTo("Item A"));

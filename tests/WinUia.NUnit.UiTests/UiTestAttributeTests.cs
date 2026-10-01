@@ -1,4 +1,4 @@
-namespace WinUia.NUnit.UnitTests;
+namespace WinUia.NUnit.UiTests;
 
 [UiTest]
 public class UiTestAttributeTests
@@ -27,6 +27,11 @@ public class UiTestAttributeTests
 
     [SetUp]
     public void SetUp() => _desktopHeldDuringSetUp = DesktopIsHeld();
+
+    // TearDown typically closes the app or restores the cursor: with the lock already released, that would happen in
+    // the middle of another process's UI test.
+    [TearDown]
+    public void TearDown() => Assert.That(DesktopIsHeld(), Is.True, "the lock is still held while [TearDown] runs");
 
     [Test]
     public void The_desktop_is_held_during_SetUp_and_the_test()
