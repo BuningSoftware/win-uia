@@ -144,12 +144,12 @@ WinUia is a modular monolith: one solution, one project per module, and one test
 |---|---|---|---|
 | `WinUia` | Application | `App` (launch, attach, find, close), `AppProcessException`; internal launchers (`WinUia.Launchers`) | `WinUia.Core` (public API only) |
 | `WinUia.Core` | Automation | `AutomationContext`, `Element` (lambda searches such as `Find(e => e.Name == "OK")`, self-healing locators), `Poll`, `WinUia.Core.Patterns`, `WinUia.Core.Exceptions`, the UIA COM interop | `WinUia.Input` (public API only) |
-| `WinUia.Input` | Platform | `Win32InputSimulator` (`SendInput`), `PhysicalDpi`, `NativeButton` | — |
+| `WinUia.Input` | Platform | `IInputSimulator` and `Win32InputSimulator` (`SendInput`; each `AutomationContext` has one as `Input`, replaceable in tests), `PhysicalDpi` | — |
 | `WinUia.NUnit` | Test integration | `[UiTest]`: one desktop per test, across test processes; `Eventually(...)` for asynchronous UI state | NUnit, `WinUia.Core` |
 
 Module rules:
 
-* Each module's `Interop/` folder is private to that module. Other modules use what it offers (`PhysicalDpi`, `NativeButton`), never its P/Invoke or COM declarations.
+* Each module's `Interop/` folder is private to that module. Other modules use what it offers (`IInputSimulator`, `PhysicalDpi`), never its P/Invoke or COM declarations.
 * Modules use each other's public API only, the same API an application built on WinUia gets.
 * Internals are shared only through `InternalsVisibleTo`, and only with the module's own test projects.
 * Namespaces follow project and folder. One type per file.

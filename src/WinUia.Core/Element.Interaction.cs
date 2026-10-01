@@ -1,4 +1,5 @@
 using WinUia.Core.Exceptions;
+using WinUia.Core.Interop;
 using WinUia.Input;
 using WinUia.Core.Patterns;
 
@@ -73,7 +74,8 @@ public sealed partial class Element
         if (hwnd == 0 || !ClassName.Contains("BUTTON", StringComparison.OrdinalIgnoreCase))
             return false;
 
-        return NativeButton.PostClick(hwnd);
+        // Posted, not sent: the click runs from the application's own message loop (see Click).
+        return User32.PostMessage(hwnd, User32.BM_CLICK, 0, 0);
     }
 
     /// <summary>Scrolls the element into view if possible and clicks its clickable point with the mouse.</summary>
@@ -86,8 +88,8 @@ public sealed partial class Element
 
         var point = GetClickablePoint();
         if (Context.ShowPointer)
-            Win32InputSimulator.MoveTo(point.X, point.Y, Context.PointerMoveDuration); // Instead of jumping there.
-        Win32InputSimulator.ClickAt(point.X, point.Y, button);
+            Context.Input.MoveTo(point.X, point.Y, Context.PointerMoveDuration); // Instead of jumping there.
+        Context.Input.ClickAt(point.X, point.Y, button);
     }
 
     /// <summary>
@@ -123,11 +125,11 @@ public sealed partial class Element
         }
 
         Focus();
-        Win32InputSimulator.SendKeys(VirtualKey.Control, VirtualKey.A);
+        Context.Input.SendKeys(VirtualKey.Control, VirtualKey.A);
         if (value.Length == 0)
-            Win32InputSimulator.SendKeys(VirtualKey.Delete);
+            Context.Input.SendKeys(VirtualKey.Delete);
         else
-            Win32InputSimulator.SendText(value);
+            Context.Input.SendText(value);
     }
 
     /// <summary>The element's text: Text pattern, then Value pattern, then Name.</summary>
@@ -179,7 +181,7 @@ public sealed partial class Element
             return;
         }
 
-        Win32InputSimulator.MoveTo(point.X, point.Y, Context.PointerMoveDuration);
+        Context.Input.MoveTo(point.X, point.Y, Context.PointerMoveDuration);
     }
 
     private void ToggleExpandCollapse()

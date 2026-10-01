@@ -70,6 +70,7 @@ public class App : IDisposable
         var path = definition.ExecutablePath ?? throw new InvalidOperationException(
             $"{typeof(TApp).Name} does not say which executable it launches. Override {nameof(ExecutablePath)} in " +
             $"{typeof(TApp).Name}, or pass the path: App.Launch<{typeof(TApp).Name}>(path).");
+
         return Start(app, effective => AppLauncher.LaunchExe(path, effective), options);
     }
 

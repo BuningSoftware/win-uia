@@ -53,6 +53,13 @@ public sealed class AutomationContext : IDisposable
     /// <summary>How long the cursor takes to move to an element when <see cref="ShowPointer"/> is on. Default 300 ms.</summary>
     public TimeSpan PointerMoveDuration { get; set; } = TimeSpan.FromMilliseconds(300);
 
+    /// <summary>
+    /// The mouse and keyboard every element of this context uses for physical input (<c>PhysicalClick</c>, typing when
+    /// a control has no Value pattern, <see cref="ShowPointer"/>). Default the real one, <see cref="Win32InputSimulator"/>;
+    /// a test can substitute its own, for example one that records what would be sent.
+    /// </summary>
+    public IInputSimulator Input { get; set; } = new Win32InputSimulator();
+
     internal IUIAutomation Automation => _automation ?? throw new ObjectDisposedException(nameof(AutomationContext));
 
     /// <summary>The desktop (root) element.</summary>

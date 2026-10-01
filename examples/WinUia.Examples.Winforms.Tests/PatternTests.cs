@@ -2,9 +2,8 @@ using WinUia.Core.Exceptions;
 using WinUia.Core.Patterns;
 using WinUia.Core;
 using WinUia.Examples.Winforms.Tests.Application;
-using WinUia.Input;
 
-namespace WinUia.Examples.Winforms.Tests.Tests;
+namespace WinUia.Examples.Winforms.Tests;
 
 /// <summary>Control patterns, searches, tree navigation and physical input, exercised on the example app's controls.</summary>
 
@@ -169,12 +168,12 @@ public sealed class PatternTests
     public void With_ShowPointer_the_cursor_moves_to_each_element_before_the_interaction()
     {
         _app.Context.ShowPointer = true;
-        Win32InputSimulator.MoveTo(5, 5);
+        _app.Context.Input.MoveTo(5, 5);
 
         _app.Button.Click();
-        var afterClick = Win32InputSimulator.GetCursorPosition();
+        var afterClick = _app.Context.Input.GetCursorPosition();
         _app.InputBox.SetValue("pointed at");
-        var afterSetValue = Win32InputSimulator.GetCursorPosition();
+        var afterSetValue = _app.Context.Input.GetCursorPosition();
 
         using (Assert.EnterMultipleScope())
         {
@@ -190,12 +189,12 @@ public sealed class PatternTests
     public void Without_ShowPointer_interactions_do_not_move_the_cursor_to_the_elements()
     {
         _app.Context.ShowPointer = false; // WinFormsApp turns it on by default.
-        Win32InputSimulator.MoveTo(5, 5); // Away from the app's window.
+        _app.Context.Input.MoveTo(5, 5); // Away from the app's window.
 
         _app.Button.Click();
-        var afterClick = Win32InputSimulator.GetCursorPosition();
+        var afterClick = _app.Context.Input.GetCursorPosition();
         _app.InputBox.SetValue("not pointed at");
-        var afterSetValue = Win32InputSimulator.GetCursorPosition();
+        var afterSetValue = _app.Context.Input.GetCursorPosition();
 
         // Not "the cursor stays at (5, 5)": someone using the mouse during the run would break that. What ShowPointer
         // controls is whether WinUia moves the cursor onto the elements, and nobody else does that by accident.
@@ -218,7 +217,7 @@ public sealed class PatternTests
         input.PhysicalClick();
         Eventually(() => input.HasKeyboardFocus, "a physical click focuses the text box");
 
-        Win32InputSimulator.SendText("typed");
+        _app.Context.Input.SendText("typed");
         Eventually(() => input.ValuePattern.Value == "typed", "SendText types into the focused text box");
     }
 }

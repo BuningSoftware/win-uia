@@ -1,6 +1,6 @@
 using WinUia.Examples.Winforms.Tests.Application;
 
-namespace WinUia.Examples.Winforms.Tests.Tests;
+namespace WinUia.Examples.Winforms.Tests;
 
 [UiTest]
 public sealed class TabTests

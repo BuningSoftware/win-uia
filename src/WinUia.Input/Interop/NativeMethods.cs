@@ -24,11 +24,11 @@ internal static class NativeMethods
     [return: MarshalAs(UnmanagedType.Bool)]
     public static extern bool GetCursorPos(out POINT lpPoint);
 
-    [DllImport("user32.dll", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public static extern bool PostMessage(nint hWnd, uint msg, nint wParam, nint lParam);
+    [DllImport("user32.dll")]
+    public static extern nint GetForegroundWindow();
 
-    public const uint BM_CLICK = 0x00F5;
+    [DllImport("user32.dll")]
+    public static extern uint GetWindowThreadProcessId(nint hWnd, out uint processId);
 
     public const int SM_XVIRTUALSCREEN = 76;
     public const int SM_YVIRTUALSCREEN = 77;
