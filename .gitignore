@@ -60,3 +60,6 @@ nunit-*.xml
 
 *.idea
 .vs/
+
+# User-specific IDE files
+*.user

@@ -1,0 +1,14 @@
+<Project>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <!-- Settings shared by every WinUia module. -->
+  <PropertyGroup>
+    <PackageLicenseExpression>AGPL-3.0-only</PackageLicenseExpression>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Each module's own test project, e.g. WinUia.Core -> WinUia.Core.UnitTests. -->
+    <InternalsVisibleTo Include="$(MSBuildProjectName).UnitTests" />
+  </ItemGroup>
+</Project>

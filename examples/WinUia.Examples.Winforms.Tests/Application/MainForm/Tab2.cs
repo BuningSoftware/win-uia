@@ -1,0 +1,9 @@
+using WinUia.Core;
+
+namespace WinUia.Examples.Winforms.Tests.Application;
+
+/// <summary>The content of the second tab page, found under the main window.</summary>
+public sealed class Tab2(Element window)
+{
+    public Element Content => window.FindByAutomationId("lblTab2");
+}
