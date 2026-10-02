@@ -11,9 +11,9 @@
   <p align="center">
     A .NET library for automating Windows applications through Microsoft UI Automation.
     <br />
-    <a href="https://github.com/JelleBuning/win-uia/issues">Report Bug</a>
+    <a href="https://github.com/BuningSoftware/win-uia/issues">Report Bug</a>
     ·
-    <a href="https://github.com/JelleBuning/win-uia/issues">Request Feature</a>
+    <a href="https://github.com/BuningSoftware/win-uia/issues">Request Feature</a>
   </p>
 </div>
 
@@ -72,7 +72,7 @@ Setting up WinUia on your local machine is straightforward. Make sure the [.NET 
 1.  **Clone the repository:**
 
     ```bash
-    git clone https://github.com/JelleBuning/win-uia.git
+    git clone https://github.com/BuningSoftware/win-uia.git
     cd win-uia
     ```
 
@@ -206,13 +206,13 @@ Distributed under the GNU Affero General Public License v3.0 License. See `LICEN
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/JelleBuning/win-uia.svg?style=for-the-badge
-[contributors-url]: https://github.com/JelleBuning/win-uia/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/JelleBuning/win-uia.svg?style=for-the-badge
-[forks-url]: https://github.com/JelleBuning/win-uia/network/members
-[stars-shield]: https://img.shields.io/github/stars/JelleBuning/win-uia.svg?style=for-the-badge
-[stars-url]: https://github.com/JelleBuning/win-uia/stargazers
-[issues-shield]: https://img.shields.io/github/issues/JelleBuning/win-uia.svg?style=for-the-badge
-[issues-url]: https://github.com/JelleBuning/win-uia/issues
-[license-shield]: https://img.shields.io/github/license/JelleBuning/win-uia.svg?style=for-the-badge
-[license-url]: https://github.com/JelleBuning/win-uia/blob/main/LICENSE
+[contributors-shield]: https://img.shields.io/github/contributors/BuningSoftware/win-uia.svg?style=for-the-badge
+[contributors-url]: https://github.com/BuningSoftware/win-uia/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/BuningSoftware/win-uia.svg?style=for-the-badge
+[forks-url]: https://github.com/BuningSoftware/win-uia/network/members
+[stars-shield]: https://img.shields.io/github/stars/BuningSoftware/win-uia.svg?style=for-the-badge
+[stars-url]: https://github.com/BuningSoftware/win-uia/stargazers
+[issues-shield]: https://img.shields.io/github/issues/BuningSoftware/win-uia.svg?style=for-the-badge
+[issues-url]: https://github.com/BuningSoftware/win-uia/issues
+[license-shield]: https://img.shields.io/github/license/BuningSoftware/win-uia.svg?style=for-the-badge
+[license-url]: https://github.com/BuningSoftware/win-uia/blob/main/LICENSE

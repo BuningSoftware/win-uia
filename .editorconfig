@@ -1,0 +1,6 @@
+root = true
+
+# Win32 and COM interop declarations keep the Windows SDK names (INPUT, BM_CLICK, UIA_E_ELEMENTNOTAVAILABLE, ...),
+# so each one can be looked up in the SDK headers and documentation as it is written there.
+[**/Interop/*.cs]
+resharper_inconsistent_naming_highlighting = none
