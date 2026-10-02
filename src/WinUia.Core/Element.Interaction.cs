@@ -1,4 +1,5 @@
 using WinUia.Core.Exceptions;
+using WinUia.Core.Interop;
 using WinUia.Input;
 using WinUia.Core.Patterns;
 
@@ -33,6 +34,8 @@ public sealed partial class Element
     /// <summary>
     /// Clicks the element through the first pattern that means "click" for it: Invoke, Toggle, SelectionItem,
     /// then ExpandCollapse. Falls back to a physical mouse click (<see cref="PhysicalClick"/>).
+    /// With <see cref="AutomationContext.ShowPointer"/> on, the cursor moves to the element first, as it does for the
+    /// other interactions.
     /// <para>
     /// Native Win32 and WinForms buttons are clicked by posting <c>BM_CLICK</c> to their window instead of through
     /// the Invoke pattern. Their Invoke runs the click handler inside the UIA call, so a handler that shows a modal
@@ -44,6 +47,7 @@ public sealed partial class Element
     public void Click()
     {
         EnsureEnabled();
+        MovePointerHere();
 
         if (InvokePattern.IsSupported)
         {
@@ -70,7 +74,8 @@ public sealed partial class Element
         if (hwnd == 0 || !ClassName.Contains("BUTTON", StringComparison.OrdinalIgnoreCase))
             return false;
 
-        return NativeButton.PostClick(hwnd);
+        // Posted, not sent: the click runs from the application's own message loop (see Click).
+        return User32.PostMessage(hwnd, User32.BM_CLICK, 0, 0);
     }
 
     /// <summary>Scrolls the element into view if possible and clicks its clickable point with the mouse.</summary>
@@ -82,7 +87,9 @@ public sealed partial class Element
             ScrollItemPattern.ScrollIntoView();
 
         var point = GetClickablePoint();
-        Win32InputSimulator.ClickAt(point.X, point.Y, button);
+        if (Context.ShowPointer)
+            Context.Input.MoveTo(point.X, point.Y, Context.PointerMoveDuration); // Instead of jumping there.
+        Context.Input.ClickAt(point.X, point.Y, button);
     }
 
     /// <summary>
@@ -109,6 +116,7 @@ public sealed partial class Element
     public void SetValue(string value)
     {
         EnsureEnabled();
+        MovePointerHere();
 
         if (ValuePattern.IsSupported && !ValuePattern.IsReadOnly)
         {
@@ -117,11 +125,11 @@ public sealed partial class Element
         }
 
         Focus();
-        Win32InputSimulator.SendKeys(VirtualKey.Control, VirtualKey.A);
+        Context.Input.SendKeys(VirtualKey.Control, VirtualKey.A);
         if (value.Length == 0)
-            Win32InputSimulator.SendKeys(VirtualKey.Delete);
+            Context.Input.SendKeys(VirtualKey.Delete);
         else
-            Win32InputSimulator.SendText(value);
+            Context.Input.SendText(value);
     }
 
     /// <summary>The element's text: Text pattern, then Value pattern, then Name.</summary>
@@ -147,7 +155,34 @@ public sealed partial class Element
     public void Collapse() => WhenEnabled(ExpandCollapsePattern.Collapse);
 
     /// <summary>Gives the element keyboard focus.</summary>
-    public void Focus() => Do(e => e.SetFocus());
+    public void Focus()
+    {
+        MovePointerHere();
+        Do(e => e.SetFocus());
+    }
+
+    /// <summary>
+    /// With <see cref="AutomationContext.ShowPointer"/> on, moves the cursor to the element's clickable point over
+    /// <see cref="AutomationContext.PointerMoveDuration"/>. Only shows where the interaction happens, so an element
+    /// without a clickable point (off screen, collapsed) is simply not pointed at.
+    /// </summary>
+    private void MovePointerHere()
+    {
+        if (!Context.ShowPointer)
+            return;
+
+        ScreenPoint point;
+        try
+        {
+            point = GetClickablePoint();
+        }
+        catch (UiaNoClickablePointException)
+        {
+            return;
+        }
+
+        Context.Input.MoveTo(point.X, point.Y, Context.PointerMoveDuration);
+    }
 
     private void ToggleExpandCollapse()
     {
@@ -166,6 +201,7 @@ public sealed partial class Element
     private void WhenEnabled(Action action)
     {
         EnsureEnabled();
+        MovePointerHere();
         action();
     }
 }

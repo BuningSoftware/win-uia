@@ -1,3 +1,5 @@
+using WinUia.Core.Interop;
+
 namespace WinUia.Core.Exceptions;
 
 /// <summary>The element does not support the requested control pattern (<c>UIA_E_NOTSUPPORTED</c>).</summary>

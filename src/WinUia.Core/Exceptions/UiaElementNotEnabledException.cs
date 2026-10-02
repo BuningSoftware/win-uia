@@ -1,3 +1,5 @@
+using WinUia.Core.Interop;
+
 namespace WinUia.Core.Exceptions;
 
 /// <summary>The element is disabled and cannot be interacted with (<c>UIA_E_ELEMENTNOTENABLED</c>).</summary>

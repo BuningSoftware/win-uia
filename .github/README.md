@@ -11,9 +11,9 @@
   <p align="center">
     A .NET library for automating Windows applications through Microsoft UI Automation.
     <br />
-    <a href="https://github.com/JelleBuning/win-uia/issues">Report Bug</a>
+    <a href="https://github.com/BuningSoftware/win-uia/issues">Report Bug</a>
     ·
-    <a href="https://github.com/JelleBuning/win-uia/issues">Request Feature</a>
+    <a href="https://github.com/BuningSoftware/win-uia/issues">Request Feature</a>
   </p>
 </div>
 
@@ -72,7 +72,7 @@ Setting up WinUia on your local machine is straightforward. Make sure the [.NET 
 1.  **Clone the repository:**
 
     ```bash
-    git clone https://github.com/JelleBuning/win-uia.git
+    git clone https://github.com/BuningSoftware/win-uia.git
     cd win-uia
     ```
 
@@ -113,18 +113,27 @@ dialog.Find(e => e.ControlType == ControlType.Button && e.Name == "Yes").Click()
 they check the element is enabled and pick the right pattern. The pattern wrappers (`element.TogglePattern.State`,
 `element.WindowPattern.Close()`, ...) are for reading pattern state and for the members those methods do not cover.
 
-A page object for the whole application derives from `App` and lists its controls; `As<T>()` turns a launched or
-attached app into it, FlaUI-style. Page objects for part of the UI are plain classes built on an `Element`
-(see `examples/WinUia.Examples.Winforms.Tests`):
+A page object for the whole application derives from `App` and lists its controls; the generic factories
+(`App.Launch<T>`, `App.LaunchPackaged<T>`, `App.Attach<T>`) create it already connected. A page object can also say
+which executable it is and how it starts by default, so tests launch it without repeating either. `AppLaunchOptions`
+sets the arguments, working directory, environment, pointer and main-window timeout; options passed to a factory
+override the page object's defaults one by one. Page objects for part of the UI are plain classes built on an
+`Element` (see `examples/WinUia.Examples.Winforms.Tests`):
 
 ```csharp
 public sealed class MainPage : App
 {
+    protected override string ExecutablePath => @"C:\path\to\MyApp.exe";
+    protected override AppLaunchOptions DefaultOptions => new() { ShowPointer = true };
+
     public Element SaveButton => MainWindow.FindByAutomationId("btnSave");
     public SaveDialog Save() { SaveButton.Click(); return new SaveDialog(FindWindow("Save changes?")); }
 }
 
-using var page = App.Launch(@"C:\path\to\MyApp.exe").As<MainPage>();   // disposing the page closes the app
+using var page = App.Launch<MainPage>();                                            // its executable and defaults
+using var quiet = App.Launch<MainPage>(new AppLaunchOptions { ShowPointer = false }); // one default overridden
+using var other = App.Launch<MainPage>(@"D:\builds\MyApp.exe");                      // another executable
+// Disposing a page closes its app.
 ```
 
 ### Project structure
@@ -135,22 +144,30 @@ WinUia is a modular monolith: one solution, one project per module, and one test
 |---|---|---|---|
 | `WinUia` | Application | `App` (launch, attach, find, close), `AppProcessException`; internal launchers (`WinUia.Launchers`) | `WinUia.Core` (public API only) |
 | `WinUia.Core` | Automation | `AutomationContext`, `Element` (lambda searches such as `Find(e => e.Name == "OK")`, self-healing locators), `Poll`, `WinUia.Core.Patterns`, `WinUia.Core.Exceptions`, the UIA COM interop | `WinUia.Input` (public API only) |
-| `WinUia.Input` | Platform | `Win32InputSimulator` (`SendInput`), `PhysicalDpi`, `NativeButton` | — |
+| `WinUia.Input` | Platform | `IInputSimulator` and `Win32InputSimulator` (`SendInput`; each `AutomationContext` has one as `Input`, replaceable in tests), `PhysicalDpi` | — |
 | `WinUia.NUnit` | Test integration | `[UiTest]`: one desktop per test, across test processes; `Eventually(...)` for asynchronous UI state | NUnit, `WinUia.Core` |
 
 Module rules:
 
-* Each module's `Interop/` folder is private to that module. Other modules use what it offers (`PhysicalDpi`, `NativeButton`), never its P/Invoke or COM declarations.
+* Each module's `Interop/` folder is private to that module. Other modules use what it offers (`IInputSimulator`, `PhysicalDpi`), never its P/Invoke or COM declarations.
 * Modules use each other's public API only, the same API an application built on WinUia gets.
-* Internals are shared only through `InternalsVisibleTo`, and only with the module's own `<Module>.UnitTests` project.
+* Internals are shared only through `InternalsVisibleTo`, and only with the module's own test projects.
 * Namespaces follow project and folder. One type per file.
 * Package versions are set once, in `Directory.Packages.props`.
 
-Tests live next to their module as `tests/<Module>.UnitTests`. The ones that drive a real application launch
+Each module has up to three test projects under `tests/`, by what the tests need:
+
+| Project | Tests | Needs |
+|---|---|---|
+| `<Module>.UnitTests` | The module's code on its own | Nothing |
+| `<Module>.IntegrationTests` | Against the real UI Automation client, Win32 and other OS objects, without showing a window | Windows |
+| `<Module>.UiTests` | Launch an app or move the real mouse and keyboard | An interactive, unlocked desktop |
+
+Every test in a `.UiTests` project gets `[UiTest]` from the build (category `UI`), so
+`dotnet test --filter "Category!=UI"` runs the unit and integration tests on any Windows machine. UI tests launch
 `tests/WinUia.TestApp`, an empty window, located through `tests/WinUia.Testing.Shared` (`AppPaths`). Tests of control
 behaviour (patterns, searches, self-healing elements, dialogs, input) run against the WinForms example instead, in
-`examples/WinUia.Examples.Winforms.Tests`. UI tests are marked `[UiTest]`
-(category `UI`). Tests use NUnit.
+`examples/WinUia.Examples.Winforms.Tests`. Tests use NUnit.
 
 `examples/` shows WinUia the way a user would use it: `WinUia.Examples.Winforms` is a WinForms app and
 `WinUia.Examples.Winforms.Tests` tests it with page objects, using only WinUia's public API and `WinUia.NUnit`, nothing
@@ -189,13 +206,13 @@ Distributed under the GNU Affero General Public License v3.0 License. See `LICEN
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/JelleBuning/win-uia.svg?style=for-the-badge
-[contributors-url]: https://github.com/JelleBuning/win-uia/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/JelleBuning/win-uia.svg?style=for-the-badge
-[forks-url]: https://github.com/JelleBuning/win-uia/network/members
-[stars-shield]: https://img.shields.io/github/stars/JelleBuning/win-uia.svg?style=for-the-badge
-[stars-url]: https://github.com/JelleBuning/win-uia/stargazers
-[issues-shield]: https://img.shields.io/github/issues/JelleBuning/win-uia.svg?style=for-the-badge
-[issues-url]: https://github.com/JelleBuning/win-uia/issues
-[license-shield]: https://img.shields.io/github/license/JelleBuning/win-uia.svg?style=for-the-badge
-[license-url]: https://github.com/JelleBuning/win-uia/blob/main/LICENSE
+[contributors-shield]: https://img.shields.io/github/contributors/BuningSoftware/win-uia.svg?style=for-the-badge
+[contributors-url]: https://github.com/BuningSoftware/win-uia/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/BuningSoftware/win-uia.svg?style=for-the-badge
+[forks-url]: https://github.com/BuningSoftware/win-uia/network/members
+[stars-shield]: https://img.shields.io/github/stars/BuningSoftware/win-uia.svg?style=for-the-badge
+[stars-url]: https://github.com/BuningSoftware/win-uia/stargazers
+[issues-shield]: https://img.shields.io/github/issues/BuningSoftware/win-uia.svg?style=for-the-badge
+[issues-url]: https://github.com/BuningSoftware/win-uia/issues
+[license-shield]: https://img.shields.io/github/license/BuningSoftware/win-uia.svg?style=for-the-badge
+[license-url]: https://github.com/BuningSoftware/win-uia/blob/main/LICENSE

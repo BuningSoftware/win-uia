@@ -16,5 +16,5 @@ internal interface IUIAutomationTextRange
     void Reserved_GetBoundingRectangles();
     void Reserved_GetEnclosingElement();
     [return: MarshalAs(UnmanagedType.BStr)]
-    string GetText(int maxLength);
+    string? GetText(int maxLength);
 }

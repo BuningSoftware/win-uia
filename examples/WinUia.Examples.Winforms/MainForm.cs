@@ -14,6 +14,7 @@ public partial class MainForm : Form
         InitializeComponent();
     }
 
+    // ReSharper disable once LocalizableElement (the tests read this text)
     private void btnClick_Click(object? sender, EventArgs e) => lblResult.Text = "Clicked";
 
     /// <summary>Opens the modal DialogForm and reports how it was closed in lblResult.</summary>
@@ -44,7 +45,7 @@ public partial class MainForm : Form
     private void btnReverse_Click(object? sender, EventArgs e)
     {
         var old = pnlItems.Controls.Cast<Button>().ToArray();
-        var reversed = old.Reverse().Select(b => Recreate(b, b.Text)).ToArray();
+        var reversed = old.Reverse().Select(b => Recreate(b, b.Text)).ToArray<Control>();
 
         pnlItems.SuspendLayout();
         foreach (var button in old)
@@ -61,6 +62,7 @@ public partial class MainForm : Form
     {
         Name = original.Name,
         Text = text,
+        Cursor = original.Cursor,
         Location = original.Location,
         Size = original.Size,
         UseVisualStyleBackColor = true,

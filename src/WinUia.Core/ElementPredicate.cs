@@ -29,7 +29,7 @@ internal static class ElementPredicate
     /// <see cref="NotSupportedException"/> when the predicate cannot run inside UIA.
     /// </summary>
     public static Expression<Func<Element, bool>> Canonicalize(Expression<Func<Element, bool>> predicate) =>
-        FromBody(Fold<Expression>(predicate.Body, () => Expression.Constant(true), Equality, Expression.AndAlso, Expression.OrElse, Expression.Not));
+        FromBody(Fold(predicate.Body, () => Expression.Constant(true), Equality, Expression.AndAlso, Expression.OrElse, Expression.Not));
 
     /// <summary>A canonical predicate from a canonical <paramref name="body"/>.</summary>
     private static Expression<Func<Element, bool>> FromBody(Expression body) => Expression.Lambda<Func<Element, bool>>(body, ElementParameter);

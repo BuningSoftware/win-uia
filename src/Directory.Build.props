@@ -7,8 +7,33 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
+  <!--
+    NuGet package metadata, the same for every module. The version is not set here: the publish workflow passes it
+    from the release tag (Version=1.2.0 for a release tagged v1.2.0); local builds keep the SDK default, 1.0.0.
+  -->
+  <PropertyGroup>
+    <Authors>Buning Software</Authors>
+    <Company>Buning Software</Company>
+    <Copyright>Copyright © Buning Software</Copyright>
+    <PackageProjectUrl>https://github.com/BuningSoftware/win-uia</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/BuningSoftware/win-uia</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>ui-automation;uia;uia3;windows;automation;testing;ui-testing;winforms;wpf;winui</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <!-- Symbols go to nuget.org's symbol server as .snupkg next to each package, so users can step into WinUia. -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
   <ItemGroup>
-    <!-- Each module's own test project, e.g. WinUia.Core -> WinUia.Core.UnitTests. -->
+    <!-- The repository README, shown on each package's nuget.org page. -->
+    <None Include="$(MSBuildThisFileDirectory)..\.github\README.md" Pack="true" PackagePath="\" Visible="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Each module's own test projects, e.g. WinUia.Core -> WinUia.Core.UnitTests, .IntegrationTests and .UiTests. -->
     <InternalsVisibleTo Include="$(MSBuildProjectName).UnitTests" />
+    <InternalsVisibleTo Include="$(MSBuildProjectName).IntegrationTests" />
+    <InternalsVisibleTo Include="$(MSBuildProjectName).UiTests" />
   </ItemGroup>
 </Project>

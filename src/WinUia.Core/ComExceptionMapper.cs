@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 using WinUia.Core.Exceptions;
-using static WinUia.Core.Exceptions.HResults;
+using static WinUia.Core.Interop.HResults;
 
 namespace WinUia.Core;
 

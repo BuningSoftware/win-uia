@@ -1,3 +1,5 @@
+using WinUia.Core.Interop;
+
 namespace WinUia.Core.Exceptions;
 
 /// <summary>A UI Automation call or wait timed out (<c>UIA_E_TIMEOUT</c>).</summary>

@@ -1,6 +1,6 @@
 namespace WinUia.Input;
 
-/// <summary>Virtual-key codes for <see cref="Win32InputSimulator"/>.</summary>
+/// <summary>Virtual-key codes for <see cref="IInputSimulator"/>.</summary>
 public enum VirtualKey : ushort
 {
 #pragma warning disable CS1591 // Standard Win32 virtual-key names.

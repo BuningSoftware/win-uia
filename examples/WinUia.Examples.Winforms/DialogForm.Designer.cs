@@ -53,6 +53,7 @@ namespace WinUia.Examples.Winforms
             // btnDialogOk
             //
             btnDialogOk.DialogResult = DialogResult.OK;
+            btnDialogOk.Cursor = Cursors.Hand;
             btnDialogOk.Location = new Point(92, 70);
             btnDialogOk.Name = "btnDialogOk";
             btnDialogOk.Size = new Size(75, 23);
@@ -63,6 +64,7 @@ namespace WinUia.Examples.Winforms
             // btnDialogCancel
             //
             btnDialogCancel.DialogResult = DialogResult.Cancel;
+            btnDialogCancel.Cursor = Cursors.Hand;
             btnDialogCancel.Location = new Point(173, 70);
             btnDialogCancel.Name = "btnDialogCancel";
             btnDialogCancel.Size = new Size(75, 23);

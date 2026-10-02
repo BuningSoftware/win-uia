@@ -63,6 +63,7 @@ namespace WinUia.Examples.Winforms
             //
             // btnClick
             //
+            btnClick.Cursor = Cursors.Hand;
             btnClick.Location = new Point(12, 40);
             btnClick.Name = "btnClick";
             btnClick.Size = new Size(120, 23);
@@ -101,6 +102,7 @@ namespace WinUia.Examples.Winforms
             //
             // btnRecreate
             //
+            btnRecreate.Cursor = Cursors.Hand;
             btnRecreate.Location = new Point(12, 140);
             btnRecreate.Name = "btnRecreate";
             btnRecreate.Size = new Size(120, 23);
@@ -111,6 +113,7 @@ namespace WinUia.Examples.Winforms
             //
             // btnVolatile
             //
+            btnVolatile.Cursor = Cursors.Hand;
             btnVolatile.Location = new Point(140, 140);
             btnVolatile.Name = "btnVolatile";
             btnVolatile.Size = new Size(120, 23);
@@ -130,6 +133,7 @@ namespace WinUia.Examples.Winforms
             //
             // btnItemA
             //
+            btnItemA.Cursor = Cursors.Hand;
             btnItemA.Location = new Point(3, 3);
             btnItemA.Name = "btnItemA";
             btnItemA.Size = new Size(100, 23);
@@ -139,6 +143,7 @@ namespace WinUia.Examples.Winforms
             //
             // btnItemB
             //
+            btnItemB.Cursor = Cursors.Hand;
             btnItemB.Location = new Point(109, 3);
             btnItemB.Name = "btnItemB";
             btnItemB.Size = new Size(100, 23);
@@ -148,6 +153,7 @@ namespace WinUia.Examples.Winforms
             //
             // btnItemC
             //
+            btnItemC.Cursor = Cursors.Hand;
             btnItemC.Location = new Point(215, 3);
             btnItemC.Name = "btnItemC";
             btnItemC.Size = new Size(100, 23);
@@ -157,6 +163,7 @@ namespace WinUia.Examples.Winforms
             //
             // btnReverse
             //
+            btnReverse.Cursor = Cursors.Hand;
             btnReverse.Location = new Point(12, 215);
             btnReverse.Name = "btnReverse";
             btnReverse.Size = new Size(120, 23);
@@ -167,6 +174,7 @@ namespace WinUia.Examples.Winforms
             //
             // btnOpenDialog
             //
+            btnOpenDialog.Cursor = Cursors.Hand;
             btnOpenDialog.Location = new Point(140, 215);
             btnOpenDialog.Name = "btnOpenDialog";
             btnOpenDialog.Size = new Size(120, 23);

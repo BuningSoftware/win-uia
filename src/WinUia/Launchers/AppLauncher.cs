@@ -8,13 +8,26 @@ namespace WinUia.Launchers;
 /// <summary>Starts, attaches to and closes applications, and finds their main window. <see cref="App"/> is the public API over it.</summary>
 internal static class AppLauncher
 {
-    /// <summary>Starts a classic executable (WinForms, WPF, unpackaged WinUI 3, Win32; x86 or x64).</summary>
-    public static Process LaunchExe(string path, string? arguments = null)
+    /// <summary>
+    /// Starts a classic executable (WinForms, WPF, unpackaged WinUI 3, Win32; x86 or x64) with the arguments, working
+    /// directory and environment of <paramref name="options"/>.
+    /// </summary>
+    public static Process LaunchExe(string path, AppLaunchOptions? options = null)
     {
+        var startInfo = new ProcessStartInfo(path, options?.Arguments ?? "") { UseShellExecute = false };
+        if (options?.WorkingDirectory is { } workingDirectory)
+            startInfo.WorkingDirectory = workingDirectory;
+        foreach (var (name, value) in options?.Environment ?? new Dictionary<string, string?>())
+        {
+            if (value is null)
+                startInfo.Environment.Remove(name);
+            else
+                startInfo.Environment[name] = value;
+        }
+
         try
         {
-            return Process.Start(new ProcessStartInfo(path, arguments ?? "") { UseShellExecute = false })
-                ?? throw new AppProcessException($"Could not start '{path}'.");
+            return Process.Start(startInfo) ?? throw new AppProcessException($"Could not start '{path}'.");
         }
         catch (Win32Exception ex)
         {
@@ -22,9 +35,25 @@ internal static class AppLauncher
         }
     }
 
-    /// <summary>Starts a packaged app by its AppUserModelID, for example <c>"Microsoft.WindowsCalculator_8wekyb3d8bbwe!App"</c>.</summary>
-    public static Process LaunchPackaged(string appUserModelId, string? arguments = null) =>
-        Attach(PackagedAppActivator.Activate(appUserModelId, arguments));
+    /// <summary>
+    /// Starts a packaged app by its AppUserModelID, for example <c>"Microsoft.WindowsCalculator_8wekyb3d8bbwe!App"</c>,
+    /// with the arguments of <paramref name="options"/>. Windows decides a packaged app's working directory and
+    /// environment, so asking for either throws <see cref="ArgumentException"/>.
+    /// </summary>
+    public static Process LaunchPackaged(string appUserModelId, AppLaunchOptions? options = null)
+    {
+        EnsurePackagedOptions(options);
+        return Attach(PackagedAppActivator.Activate(appUserModelId, options?.Arguments));
+    }
+
+    /// <summary>Throws <see cref="ArgumentException"/> for options a packaged app cannot be started with.</summary>
+    public static void EnsurePackagedOptions(AppLaunchOptions? options)
+    {
+        if (options?.WorkingDirectory is not null || options?.Environment is not null)
+            throw new ArgumentException(
+                "A packaged app starts with the working directory and environment Windows gives it; " +
+                "WorkingDirectory and Environment apply to executables only.", nameof(options));
+    }
 
     /// <summary>Attaches to a running process by id.</summary>
     public static Process Attach(int processId)
